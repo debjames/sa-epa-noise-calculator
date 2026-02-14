@@ -695,30 +695,52 @@ renderSourceTable('lmax','nightLmaxRows','nightLmaxTotal',1);
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script>
-  document.getElementById('pdfBtn').addEventListener('click', () => {
-    const el = document.getElementById('pdfArea');
+  document.getElementById("pdfBtn").addEventListener("click", async () => {
+    const el = document.getElementById("pdfArea");
 
-    // Temporarily widen scrollable tables so the PDF captures full table width
-    const scrollers = el.querySelectorAll('.table-scroll');
+    // Ensure scrollable tables render fully (no clipped columns)
+    const scrollers = el.querySelectorAll(".table-scroll");
     scrollers.forEach(s => {
-      s.dataset.prevOverflow = s.style.overflowX;
-      s.style.overflowX = 'visible';
+      s.dataset.prevOverflow = s.style.overflowX || "";
+      s.style.overflowX = "visible";
     });
 
-    const opt = {
-      margin:       [10, 10, 10, 10],        // mm
-      filename:     'EPA-noise-calculator.pdf',
-      image:        { type: 'jpeg', quality: 0.95 },
-      html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
-      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' } // landscape suits your wide tables
-    };
-
-    html2pdf().set(opt).from(el).save().then(() => {
-      // restore scrollbars
-      scrollers.forEach(s => s.style.overflowX = s.dataset.prevOverflow || '');
+    // Render the element to a canvas
+    const canvas = await html2canvas(el, {
+      scale: 2,
+      backgroundColor: "#ffffff",
+      useCORS: true
     });
+
+    // Restore scrollbars
+    scrollers.forEach(s => (s.style.overflowX = s.dataset.prevOverflow));
+
+    const imgData = canvas.toDataURL("image/jpeg", 0.95);
+
+    // A4 portrait page size (mm)
+    const pageW = 210;
+    const pageH = 297;
+
+    // Image size in mm to fit on ONE page
+    const imgW = pageW;
+    const imgH = (canvas.height * imgW) / canvas.width;
+
+    let renderW = imgW, renderH = imgH;
+    if (imgH > pageH) {
+      renderH = pageH;
+      renderW = (canvas.width * renderH) / canvas.height;
+    }
+
+    const x = (pageW - renderW) / 2;
+    const y = (pageH - renderH) / 2;
+
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+    pdf.addImage(imgData, "JPEG", x, y, renderW, renderH);
+    pdf.save("EPA-noise-calculator.pdf");
   });
 </script>
+
 
 </body>
 </html>
