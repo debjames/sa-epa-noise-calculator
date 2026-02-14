@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>EPA Indicative Noise Criteria Calculator</title>
+<title>SA environmental noise criteria & noise level calculator</title>
 <style>
 :root{
   --text:#111827;
@@ -24,7 +24,7 @@ body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Aria
 .sheet{background:var(--sheet);border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:0 1px 0 rgba(0,0,0,.03);}
 table{width:100%;border-collapse:collapse;}
 td,th{border:1px solid var(--border);padding:8px 10px;font-size:13px;vertical-align:middle;}
-th{background:rgba(242,203,0,1);text-align:left;font-weight:700;}
+th{background:rgba(242,203,0,1);font-weight:700;}
 .small{font-size:12px;color:var(--muted);}
 select{width:100%;border:1px solid var(--border);border-radius:10px;padding:8px 10px;font-size:13px;background:white;}
 input[type="number"]{width:100%;border:1px solid var(--border);border-radius:10px;padding:8px 10px;font-size:13px;background:white;box-sizing:border-box;}
@@ -75,25 +75,25 @@ input[type="number"]{width:100%;border:1px solid var(--border);border-radius:10p
           </tr>
 
           <tr>
-            <td><b>Noise-affected premises 1</b></td>
+            <td><b>Receiver zone/subzone 1</b></td>
             <td><select id="r1"></select></td>
             <td id="r1_land" class="center"></td>
           <td class="center"><input type="number" min="0" step="0.1" inputmode="decimal" id="dist_r1" placeholder=""></td>
           </tr>
           <tr>
-            <td><b>Noise-affected premises 2</b></td>
+            <td><b>Receiver zone/subzone 2</b></td>
             <td><select id="r2"></select></td>
             <td id="r2_land" class="center"></td>
           <td class="center"><input type="number" min="0" step="0.1" inputmode="decimal" id="dist_r2" placeholder=""></td>
           </tr>
           <tr>
-            <td><b>Noise-affected premises 3</b></td>
+            <td><b>Receiver zone/subzone 3</b></td>
             <td><select id="r3"></select></td>
             <td id="r3_land" class="center"></td>
           <td class="center"><input type="number" min="0" step="0.1" inputmode="decimal" id="dist_r3" placeholder=""></td>
           </tr>
           <tr>
-            <td><b>Noise-affected premises 4</b></td>
+            <td><b>Receiver zone/subzone 4</b></td>
             <td><select id="r4"></select></td>
             <td id="r4_land" class="center"></td>
           <td class="center"><input type="number" min="0" step="0.1" inputmode="decimal" id="dist_r4" placeholder=""></td>
@@ -194,22 +194,22 @@ input[type="number"]{width:100%;border:1px solid var(--border);border-radius:10p
     <table>
       <tr>
         <th style="width:26%;">Receiver (Zone / Subzone)</th>
-        <th style="width:14%;" class="center">Receiver land use (single only)</th>
+        <th style="width:14%;" class="center">Receiver land use</th>
 
-        <th style="width:9%;" class="num">Day Leq<br><span class="small">Predicted</span></th>
-        <th style="width:9%;" class="num">Day Leq<br><span class="small">Criterion</span></th>
-        <th style="width:8%;" class="num">Day Leq<br><span class="small">Δ</span></th>
-        <th style="width:8%;" class="center">Day Leq<br><span class="small">OK?</span></th>
+        <th style="width:7%;" class="num">Day Leq<br><span class="small">Predicted</span></th>
+        <th style="width:7%;" class="num">Day Leq<br><span class="small">Criterion</span></th>
+        <th style="width:7%;" class="num">Day Leq<br><span class="small">Δ</span></th>
+        <th style="width:7%;" class="center">Day Leq<br><span class="small">OK?</span></th>
 
-        <th style="width:9%;" class="num">Night Leq<br><span class="small">Predicted</span></th>
-        <th style="width:9%;" class="num">Night Leq<br><span class="small">Criterion</span></th>
-        <th style="width:8%;" class="num">Night Leq<br><span class="small">Δ</span></th>
-        <th style="width:8%;" class="center">Night Leq<br><span class="small">OK?</span></th>
+        <th style="width:7%;" class="num">Night Leq<br><span class="small">Predicted</span></th>
+        <th style="width:7%;" class="num">Night Leq<br><span class="small">Criterion</span></th>
+        <th style="width:7%;" class="num">Night Leq<br><span class="small">Δ</span></th>
+        <th style="width:7%;" class="center">Night Leq<br><span class="small">OK?</span></th>
 
-        <th style="width:9%;" class="num">Night Lmax<br><span class="small">Predicted</span></th>
-        <th style="width:9%;" class="num">Night Lmax<br><span class="small">Criterion</span></th>
-        <th style="width:8%;" class="num">Night Lmax<br><span class="small">Δ</span></th>
-        <th style="width:8%;" class="center">NightLmax<br><span class="small">OK?</span></th>
+        <th style="width:7%;" class="num">Night Lmax<br><span class="small">Predicted</span></th>
+        <th style="width:7%;" class="num">Night Lmax<br><span class="small">Criterion</span></th>
+        <th style="width:7%;" class="num">Night Lmax<br><span class="small">Δ</span></th>
+        <th style="width:7%;" class="center">Night Lmax<br><span class="small">OK?</span></th>
       </tr>
       <tbody id="rows"></tbody>
     </table>
