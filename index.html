@@ -315,16 +315,16 @@ function getReceiverDistance(idx1to4){
 }
 
 function calcDayPredAtReceiver(totalDaySingleValue, distanceM){
-  // Day Pred = Total day single value - 20*log10(distance) + 8
+  // Day Pred = Total day single value - 20*log10(distance) - 8
   if (!Number.isFinite(totalDaySingleValue) || !Number.isFinite(distanceM) || distanceM <= 0) return "";
-  const pred = totalDaySingleValue - 20 * log10(distanceM) + 8;
+  const pred = totalDaySingleValue - 20 * log10(distanceM) - 8;
   return round1(pred);
 }
 
 function calcNightPredAtReceiver(totalNightSingleValue, distanceM){
-  // Night Pred = Total night single value - 20*log10(distance) + 8
+  // Night Pred = Total night single value - 20*log10(distance) - 8
   if (!Number.isFinite(totalNightSingleValue) || !Number.isFinite(distanceM) || distanceM <= 0) return "";
-  const pred = totalNightSingleValue - 20 * log10(distanceM) + 8;
+  const pred = totalNightSingleValue - 20 * log10(distanceM) - 8;
   return round1(pred);
 }
 
