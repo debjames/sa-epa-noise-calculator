@@ -35,6 +35,7 @@ input[type="number"]{width:100%;border:1px solid var(--border);border-radius:10p
 .center{text-align:center;}
 .left{text-align:left;}
 .logo{height: 100px; width: auto; display: block; margin-bottom:15px}
+.table-scroll{overflow-x:auto; width:100%;}
 .badge{display:inline-block;padding:3px 8px;border-radius:999px;border:1px solid var(--border);font-size:12px;background:#fff;margin-right:6px;margin-top:6px;}
 .ok{color:var(--ok);font-weight:700;}
 .bad{color:var(--bad);font-weight:700;}
@@ -79,6 +80,7 @@ input[type="number"]{width:100%;border:1px solid var(--border);border-radius:10p
     <div class="grid2">
       <div class="card span2">
         <h2>Selections</h2>
+        <div class="table-scroll">
         <table>
           <tr>
             <th style="width:18%;">Location</th><th style="width:27%;">Zone / Subzone</th><th style="width:15%;">Land use</th><th style="width:10%;" class="center">Distance to receiver, m</th><th style="width:10%;" class="num">Day L<sub>eq</sub><br><span class="small">Criterion</span></th><th style="width:10%;" class="num">Night L<sub>eq</sub><br><span class="small">Criterion</span></th><th style="width:10%;" class="num">Night L<sub>max</sub><br><span class="small">Criterion</span></th>
@@ -136,6 +138,7 @@ input[type="number"]{width:100%;border:1px solid var(--border);border-radius:10p
           <span class="badge">Day = 7 am–10 pm</span>
           <span class="badge">Night = 10 pm–7 am</span>
           <span class="badge">Criteria = Average(INF) − 5</span>
+        </div>
         </div>
       </div>
 
@@ -225,6 +228,7 @@ input[type="number"]{width:100%;border:1px solid var(--border);border-radius:10p
    
     <div class="grid2">
       <div class="card span2">
+      <div class="table-scroll">
     <table>
       <tr>
         <th style="width:26%;">Receiver (Zone / Subzone)</th>
@@ -252,6 +256,7 @@ input[type="number"]{width:100%;border:1px solid var(--border);border-radius:10p
       <span class="badge">Δ = Predicted − Criterion (≤ 0 is compliant)</span>
       <span class="badge">Residential/Rural Living caps: L<sub>eq</sub>52 day, L<sub>eq</sub>45 night, L<sub>max</sub> 60 night</span>
     </div>
+  </div>
   </div>
   </div>
   </div>
