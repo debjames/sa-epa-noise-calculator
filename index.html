@@ -44,6 +44,7 @@ input[type="number"]{width:100%;border:1px solid var(--border);border-radius:10p
 .grid2{display:grid;grid-template-columns:1fr;gap:12px;padding:12px 14px;}
 .span2{grid-column:1 / -1;}
 @media (min-width: 980px){.grid2{grid-template-columns:1fr 1fr;}}
+@media print {.card, .sheet, table { break-inside: avoid; }}
 .card{border:1px solid var(--border);border-radius:14px;background:#fff;padding:12px;}
 .card h2{font-size:14px;margin:0 0 10px;}
 .pdf-btn {background: rgba(255, 255, 255);border: 1px solid var(--border);padding: 10px 16px;border-radius: 10px;font-size: 13px;font-weight: 600;cursor: pointer;margin-bottom: 16px;}
@@ -51,6 +52,9 @@ input[type="number"]{width:100%;border:1px solid var(--border);border-radius:10p
 </style>
 </head>
 <body>
+
+<div id="pdfArea">
+
 <div class="container">
   <img src="resonate-logo.png" alt="Resonate" class="logo">
   <div class="h1">SA environmental noise criteria & noise prediction tool</div>
@@ -262,8 +266,9 @@ input[type="number"]{width:100%;border:1px solid var(--border);border-radius:10p
   </div>
   </div>
   </div>
+</div>
   <div style="margin-top:20px;"></div>
-  <button class="pdf-btn" onclick="window.print()">Save As</button>
+  <button class="pdf-btn" onclick="window.print()">Export PDF</button>
 </div>
 
 <script>
@@ -682,5 +687,34 @@ initReceiverDistances();
 renderSourceTable('night','nightSrcRows','nightSrcTotal',5);
 renderSourceTable('lmax','nightLmaxRows','nightLmaxTotal',1);
 </script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<script>
+  document.getElementById('pdfBtn').addEventListener('click', () => {
+    const el = document.getElementById('pdfArea');
+
+    // Temporarily widen scrollable tables so the PDF captures full table width
+    const scrollers = el.querySelectorAll('.table-scroll');
+    scrollers.forEach(s => {
+      s.dataset.prevOverflow = s.style.overflowX;
+      s.style.overflowX = 'visible';
+    });
+
+    const opt = {
+      margin:       [10, 10, 10, 10],        // mm
+      filename:     'EPA-noise-calculator.pdf',
+      image:        { type: 'jpeg', quality: 0.95 },
+      html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' } // landscape suits your wide tables
+    };
+
+    html2pdf().set(opt).from(el).save().then(() => {
+      // restore scrollbars
+      scrollers.forEach(s => s.style.overflowX = s.dataset.prevOverflow || '');
+    });
+  });
+</script>
+
 </body>
 </html>
