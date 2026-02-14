@@ -19,6 +19,7 @@
 body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;background:var(--bg);color:var(--text);}
 .container{max-width:1180px;margin:22px auto;padding:0 14px 34px;}
 .h1{font-size:20px;font-weight:700;margin:0 0 6px;}
+.h2{font-size:15px;font-weight:700;margin:0 0 6px;}
 .p{font-size:13px;color:var(--muted);margin:0 0 14px;line-height:1.45;}
 .i{font-style: italic; font-size:13px;color:var(--muted);margin:0 0 14px;line-height:1.45;}
 .sheet{background:var(--sheet);border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:0 1px 0 rgba(0,0,0,.03);}
@@ -30,7 +31,7 @@ select{width:100%;border:1px solid var(--border);border-radius:10px;padding:8px 
 input[type="number"]{width:100%;border:1px solid var(--border);border-radius:10px;padding:8px 10px;font-size:13px;background:white;box-sizing:border-box;}
 .num{text-align:center;}
 .center{text-align:center;}
-.left{text=align:left;}
+.left{text-align:left;}
 .badge{display:inline-block;padding:3px 8px;border-radius:999px;border:1px solid var(--border);font-size:12px;background:#fff;margin-right:6px;margin-top:6px;}
 .ok{color:var(--ok);font-weight:700;}
 .bad{color:var(--bad);font-weight:700;}
@@ -51,7 +52,18 @@ input[type="number"]{width:100%;border:1px solid var(--border);border-radius:10p
     Part 5 of the Environment Protection (Commercial & Industrial) Noise Policy 2023 and to understand the order
     noise levels from various noise sources. 
   </div>
-  <div class="i">
+  <div class="p">
+  <div class="h2">Sound pressure level calculator</div>
+  This calculator provides an indication of the sound pressure level at a specified distance due to various noise sources. 
+  It does not consider ground and air absorption or meteorological effects, which are more significant over large distances. 
+  It is intended to be used a simple screening tool to determine whether more accurate noise modelling and advice should be provided by an acoustic consultant.
+  </div>
+  <div class="p">
+  <div class="h2">Barrier attenuation</div>
+  The barrier provides overall 5 dB attenuation. This is a conservative indication of the attenuation provided by a solid acoustic barrier which blocks line of sight between the noise source and receiver. 
+  Actual acoustic barrier attenuation may vary in complex terrain or environments with hard reflective surfaces in proximity to the source and/or receiver.
+   </div>
+    <div class="i">
     Discliamer: This tool is not designed to provide definitive predictions or confirm compliance. 
     It serves only as a preliminary screening tool to indicate the potential for compliance. 
     For a reliable assessment and formal advice, please consult a qualified acoustic consultant.
@@ -70,7 +82,7 @@ input[type="number"]{width:100%;border:1px solid var(--border);border-radius:10p
             <td><b>Noise source (zone/subzone)</b></td>
             <td><select id="src"></select></td>
             <td id="src_land" class="center"></td>
-            <td class="center"></td>
+            <td class="left"></td>
             <td class="num"></td>
             <td class="num"></td>
             <td class="num"></td>
@@ -79,7 +91,7 @@ input[type="number"]{width:100%;border:1px solid var(--border);border-radius:10p
           <tr>
             <td><b>Receiver zone/subzone 1</b></td>
             <td><select id="r1"></select></td>
-            <td id="r1_land" class="center"></td>
+            <td id="r1_land" class="left"></td>
           <td class="center"><input type="number" min="0" step="1" inputmode="decimal" id="dist_r1" placeholder=""></td>
           <td id="r1_daycrit" class="num"></td>
           <td id="r1_nightcrit" class="num"></td>
@@ -88,7 +100,7 @@ input[type="number"]{width:100%;border:1px solid var(--border);border-radius:10p
           <tr>
             <td><b>Receiver zone/subzone 2</b></td>
             <td><select id="r2"></select></td>
-            <td id="r2_land" class="center"></td>
+            <td id="r2_land" class="left"></td>
           <td class="center"><input type="number" min="0" step="1" inputmode="decimal" id="dist_r2" placeholder=""></td>
           <td id="r2_daycrit" class="num"></td>
           <td id="r2_nightcrit" class="num"></td>
@@ -97,7 +109,7 @@ input[type="number"]{width:100%;border:1px solid var(--border);border-radius:10p
           <tr>
             <td><b>Receiver zone/subzone 3</b></td>
             <td><select id="r3"></select></td>
-            <td id="r3_land" class="center"></td>
+            <td id="r3_land" class="left"></td>
           <td class="center"><input type="number" min="0" step="1" inputmode="decimal" id="dist_r3" placeholder=""></td>
           <td id="r3_daycrit" class="num"></td>
           <td id="r3_nightcrit" class="num"></td>
@@ -106,7 +118,7 @@ input[type="number"]{width:100%;border:1px solid var(--border);border-radius:10p
           <tr>
             <td><b>Receiver zone/subzone 4</b></td>
             <td><select id="r4"></select></td>
-            <td id="r4_land" class="center"></td>
+            <td id="r4_land" class="left"></td>
           <td class="center"><input type="number" min="0" step="1" inputmode="decimal" id="dist_r4" placeholder=""></td>
           <td id="r4_daycrit" class="num"></td>
           <td id="r4_nightcrit" class="num"></td>
