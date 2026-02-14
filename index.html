@@ -561,13 +561,6 @@ function render() {
 
 
 
-function initDistanceSync(){
-  // Distance inputs (Selections table) mirror Day situation "Number" inputs for rows 1–4.
-  // No distance input is provided for the Noise source row.
-  for (let i=1; i<=4; i++){
-    const dist = document.getElementById(`dist_r${i}`);
-    if (!dist) continue;
-
     // initialise from stored Day N (so existing saved values carry across)
     dist.value = loadLS(`day_n_${i}`);
 
@@ -598,7 +591,6 @@ function initDistanceSync(){
 
 render();
 renderSourceTable('day','daySrcRows','daySrcTotal',5);
-initDistanceSync();
 renderSourceTable('night','nightSrcRows','nightSrcTotal',5);
 </script>
 </body>
