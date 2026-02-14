@@ -270,7 +270,7 @@ input[type="number"]{width:100%;border:1px solid var(--border);border-radius:10p
 </div>
     
   <div style="margin-top:20px;"></div>
- <button class="pdf-btn" id="pdfBtn">Download as PDF</button>
+<button class="pdf-btn" id="pdfBtn" type="button">Export PDF</button>
 
 
 <script>
@@ -690,61 +690,67 @@ renderSourceTable('night','nightSrcRows','nightSrcTotal',5);
 renderSourceTable('lmax','nightLmaxRows','nightLmaxTotal',1);
 </script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script>
-  document.getElementById("pdfBtn").addEventListener("click", async () => {
-    const el = document.getElementById("pdfArea");
+  document.addEventListener("DOMContentLoaded", () => {
+    const btn = document.getElementById("pdfBtn");
+    const area = document.getElementById("pdfArea");
 
-    // Make scrollable tables fully visible for capture
-    const scrollers = el.querySelectorAll(".table-scroll");
-    scrollers.forEach(s => {
-      s.dataset.prevOverflow = s.style.overflowX || "";
-      s.style.overflowX = "visible";
+    if (!btn) { alert("pdfBtn not found"); return; }
+    if (!area) { alert("pdfArea not found"); return; }
+    if (!window.html2canvas) { alert("html2canvas not loaded"); return; }
+    if (!window.jspdf) { alert("jsPDF not loaded"); return; }
+
+    btn.addEventListener("click", async () => {
+      try {
+        btn.disabled = true;
+        btn.textContent = "Exporting…";
+
+        // Temporarily show full width tables (no clipping)
+        const scrollers = area.querySelectorAll(".table-scroll");
+        scrollers.forEach(s => {
+          s.dataset.prevOverflow = s.style.overflowX || "";
+          s.style.overflowX = "visible";
+        });
+
+        const canvas = await html2canvas(area, {
+          scale: 2,
+          backgroundColor: "#ffffff",
+          useCORS: true
+        });
+
+        scrollers.forEach(s => (s.style.overflowX = s.dataset.prevOverflow));
+
+        const imgData = canvas.toDataURL("image/jpeg", 0.95);
+
+        const pageW = 210, pageH = 297; // A4 portrait mm
+        let renderW = pageW;
+        let renderH = (canvas.height * renderW) / canvas.width;
+
+        if (renderH > pageH) {
+          renderH = pageH;
+          renderW = (canvas.width * renderH) / canvas.height;
+        }
+
+        const x = (pageW - renderW) / 2;
+        const y = (pageH - renderH) / 2;
+
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+        pdf.addImage(imgData, "JPEG", x, y, renderW, renderH);
+        pdf.save("EPA-noise-calculator.pdf");
+      } catch (e) {
+        console.error(e);
+        alert("PDF export failed — check console for details.");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Export PDF";
+      }
     });
-
-    const canvas = await html2canvas(el, {
-      scale: 2,
-      backgroundColor: "#ffffff",
-      useCORS: true
-    });
-
-    // Restore scrollbars
-    scrollers.forEach(s => (s.style.overflowX = s.dataset.prevOverflow));
-
-    const imgData = canvas.toDataURL("image/jpeg", 0.95);
-
-    // A4 portrait dimensions in mm
-    const pageW = 210;
-    const pageH = 297;
-
-    const imgW = pageW;
-    const imgH = (canvas.height * imgW) / canvas.width;
-
-    let renderW = imgW;
-    let renderH = imgH;
-
-    // Force fit onto ONE portrait page
-    if (imgH > pageH) {
-      renderH = pageH;
-      renderW = (canvas.width * renderH) / canvas.height;
-    }
-
-    const x = (pageW - renderW) / 2;
-    const y = (pageH - renderH) / 2;
-
-    const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF({
-      orientation: "portrait",
-      unit: "mm",
-      format: "a4"
-    });
-
-    pdf.addImage(imgData, "JPEG", x, y, renderW, renderH);
-    pdf.save("EPA-noise-calculator.pdf");
   });
 </script>
-
 
 
 </body>
