@@ -187,7 +187,7 @@ function landDisplay(rec) {
 
 function receiverSingleLand(rec) {
   if (!rec) return "";
-  return rec.is_single == 1 ? rec.single_cat : "(multiple)";
+  return rec.is_single == 1 ? rec.single_cat : rec.land_use_raw;
 }
 
 function isResOrRuralLivingSingle(rec) {
