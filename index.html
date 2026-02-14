@@ -270,7 +270,7 @@ input[type="number"]{width:100%;border:1px solid var(--border);border-radius:10p
 </div>
     
   <div style="margin-top:20px;"></div>
- <button class="pdf-btn" id="pdfBtn">Export PDF</button>
+ <button class="pdf-btn" id="pdfBtn">Download as PDF</button>
 
 
 <script>
@@ -691,21 +691,18 @@ renderSourceTable('lmax','nightLmaxRows','nightLmaxTotal',1);
 </script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script>
   document.getElementById("pdfBtn").addEventListener("click", async () => {
     const el = document.getElementById("pdfArea");
 
-    // Ensure scrollable tables render fully (no clipped columns)
+    // Make scrollable tables fully visible for capture
     const scrollers = el.querySelectorAll(".table-scroll");
     scrollers.forEach(s => {
       s.dataset.prevOverflow = s.style.overflowX || "";
       s.style.overflowX = "visible";
     });
 
-    // Render the element to a canvas
     const canvas = await html2canvas(el, {
       scale: 2,
       backgroundColor: "#ffffff",
@@ -717,15 +714,17 @@ renderSourceTable('lmax','nightLmaxRows','nightLmaxTotal',1);
 
     const imgData = canvas.toDataURL("image/jpeg", 0.95);
 
-    // A4 portrait page size (mm)
+    // A4 portrait dimensions in mm
     const pageW = 210;
     const pageH = 297;
 
-    // Image size in mm to fit on ONE page
     const imgW = pageW;
     const imgH = (canvas.height * imgW) / canvas.width;
 
-    let renderW = imgW, renderH = imgH;
+    let renderW = imgW;
+    let renderH = imgH;
+
+    // Force fit onto ONE portrait page
     if (imgH > pageH) {
       renderH = pageH;
       renderW = (canvas.width * renderH) / canvas.height;
@@ -735,11 +734,17 @@ renderSourceTable('lmax','nightLmaxRows','nightLmaxTotal',1);
     const y = (pageH - renderH) / 2;
 
     const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+    const pdf = new jsPDF({
+      orientation: "portrait",
+      unit: "mm",
+      format: "a4"
+    });
+
     pdf.addImage(imgData, "JPEG", x, y, renderW, renderH);
     pdf.save("EPA-noise-calculator.pdf");
   });
 </script>
+
 
 
 </body>
