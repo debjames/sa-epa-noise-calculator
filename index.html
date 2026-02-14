@@ -18,8 +18,9 @@
 }
 body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;background:var(--bg);color:var(--text);}
 .container{max-width:1180px;margin:22px auto;padding:0 14px 34px;}
-.h1{font-size:20px;font-weight:700;margin:0 0 6px;}
+.h1{font-size:25px;font-weight:700;margin:0 0 6px;}
 .h2{font-size:15px;font-weight:700;margin:0 0 6px;}
+.p1{font-size:15px;color:var(--muted);margin:0 0 14px;line-height:1.45;}
 .p{font-size:13px;color:var(--muted);margin:0 0 14px;line-height:1.45;}
 .i{font-style: italic; font-size:13px;color:var(--muted);margin:0 0 14px;line-height:1.45;}
 .sheet{background:var(--sheet);border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:0 1px 0 rgba(0,0,0,.03);}
@@ -46,8 +47,8 @@ input[type="number"]{width:100%;border:1px solid var(--border);border-radius:10p
 </head>
 <body>
 <div class="container">
-  <div class="h1">EPA Indicative Noise Criteria Calculator</div>
-  <div class="p">
+  <div class="h1">SA environmental noise criteria & noise prediction tool</div>
+  <div class="p1">
     Enter the prompted information to understand the environmental noise criteria in accordance with 
     Part 5 of the Environment Protection (Commercial & Industrial) Noise Policy 2023 and to understand the order
     noise levels from various noise sources. 
@@ -81,7 +82,7 @@ input[type="number"]{width:100%;border:1px solid var(--border);border-radius:10p
           <tr>
             <td><b>Noise source (zone/subzone)</b></td>
             <td><select id="src"></select></td>
-            <td id="src_land" class="center"></td>
+            <td id="src_land" class="left"></td>
             <td class="left"></td>
             <td class="num"></td>
             <td class="num"></td>
