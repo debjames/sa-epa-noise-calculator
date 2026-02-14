@@ -1,0 +1,519 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>EPA Indicative Noise Criteria Calculator</title>
+<style>
+:root{
+  --text:#111827;
+  --muted:#6b7280;
+  --border:#e5e7eb;
+  --bg:#ffffff;
+  --sheet:#ffffff;
+  --ok:#16a34a;
+  --bad:#dc2626;
+  --okbg: rgba(22,163,74,.10);
+  --badbg: rgba(220,38,38,.10);
+}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;background:var(--bg);color:var(--text);}
+.container{max-width:1180px;margin:22px auto;padding:0 14px 34px;}
+.h1{font-size:20px;font-weight:700;margin:0 0 6px;}
+.p{font-size:13px;color:var(--muted);margin:0 0 14px;line-height:1.45;}
+.sheet{background:var(--sheet);border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:0 1px 0 rgba(0,0,0,.03);}
+table{width:100%;border-collapse:collapse;}
+td,th{border:1px solid var(--border);padding:8px 10px;font-size:13px;vertical-align:middle;}
+th{background:rgba(242,203,0,.35);text-align:left;font-weight:700;}
+.small{font-size:12px;color:var(--muted);}
+select{width:100%;border:1px solid var(--border);border-radius:10px;padding:8px 10px;font-size:13px;background:white;}
+input[type="number"]{width:100%;border:1px solid var(--border);border-radius:10px;padding:8px 10px;font-size:13px;background:white;box-sizing:border-box;}
+.num{text-align:right;}
+.center{text-align:center;}
+.badge{display:inline-block;padding:3px 8px;border-radius:999px;border:1px solid var(--border);font-size:12px;background:#fff;margin-right:6px;margin-top:6px;}
+.ok{color:var(--ok);font-weight:700;}
+.bad{color:var(--bad);font-weight:700;}
+.cell-ok{background:var(--okbg);}
+.cell-bad{background:var(--badbg);}
+.grid2{display:grid;grid-template-columns:1fr;gap:12px;padding:12px 14px;}
+@media (min-width: 980px){.grid2{grid-template-columns:1fr 1fr;}}
+.card{border:1px solid var(--border);border-radius:14px;background:#fff;padding:12px;}
+.card h2{font-size:14px;margin:0 0 10px;}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="h1">EPA Indicative Noise Criteria Calculator</div>
+  <div class="p">
+    Select the noise source and up to four receivers. The tool calculates Day/Night criteria as average(INF) − 5 dB(A),
+    applies the General/Special Industry same-category rule, and caps Residential/Rural Living (single-category only) at
+    52 (day), 45 (night), and Night Lmax 60. Enter predicted/measured levels to check compliance separately for Day, Night and Lmax.
+  </div>
+
+  <div class="sheet">
+    <div class="grid2">
+      <div class="card">
+        <h2>Selections</h2>
+        <table>
+          <tr>
+            <th style="width:38%;">Location</th>
+            <th style="width:38%;">Zone / Subzone</th>
+            <th style="width:24%;">Land use</th>
+          </tr>
+
+          <tr>
+            <td><b>Noise source (zone/subzone)</b></td>
+            <td><select id="src"></select></td>
+            <td id="src_land" class="center"></td>
+          </tr>
+
+          <tr>
+            <td><b>Noise-affected premises 1</b></td>
+            <td><select id="r1"></select></td>
+            <td id="r1_land" class="center"></td>
+          </tr>
+          <tr>
+            <td><b>Noise-affected premises 2</b></td>
+            <td><select id="r2"></select></td>
+            <td id="r2_land" class="center"></td>
+          </tr>
+          <tr>
+            <td><b>Noise-affected premises 3</b></td>
+            <td><select id="r3"></select></td>
+            <td id="r3_land" class="center"></td>
+          </tr>
+          <tr>
+            <td><b>Noise-affected premises 4</b></td>
+            <td><select id="r4"></select></td>
+            <td id="r4_land" class="center"></td>
+          </tr>
+        </table>
+
+        <div style="margin-top:10px;">
+          <span class="badge">Day = 7 am–10 pm</span>
+          <span class="badge">Night = 10 pm–7 am</span>
+          <span class="badge">Criteria = average(INF) − 5</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Noise source INF</h2>
+        <table>
+          <tr>
+            <th style="width:42%;">Details</th>
+            <th class="num" style="width:29%;">Day INF</th>
+            <th class="num" style="width:29%;">Night INF</th>
+          </tr>
+          <tr>
+            <td>Noise source INF (avg for categories)</td>
+            <td id="src_day" class="num"></td>
+            <td id="src_night" class="num"></td>
+          </tr>
+        </table>
+        <div class="small" style="margin-top:8px;">
+          If both source and receiver are single-category and the same land use category is General Industry or Special Industry,
+          Table 1 values apply for averaging (65/65 or 70/70).
+        </div>
+      </div>
+    </div>
+
+
+    <div class="grid2" style="padding-top:0;">
+      <div class="card">
+        <h2>Day situation – selected noise sources</h2>
+        <table id="daySrcTable">
+          <tr>
+            <th style="width:54%;">Source</th>
+            <th style="width:16%;" class="center">Number</th>
+            <th style="width:15%;" class="center">Include barrier</th>
+            <th style="width:15%;" class="num">Total Lw</th>
+          </tr>
+          <tbody id="daySrcRows"></tbody>
+          <tr>
+            <th colspan="3" class="num">TOTAL</th>
+            <th class="num" id="daySrcTotal">0</th>
+          </tr>
+        </table>
+        <div class="small" style="margin-top:8px;">
+          Row Total Lw = Lw + 10·log10(N). TOTAL is energetic sum of row totals.
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Night situation – selected noise sources</h2>
+        <table id="nightSrcTable">
+          <tr>
+            <th style="width:54%;">Source</th>
+            <th style="width:16%;" class="center">Number</th>
+            <th style="width:15%;" class="center">Include barrier</th>
+            <th style="width:15%;" class="num">Total Lw</th>
+          </tr>
+          <tbody id="nightSrcRows"></tbody>
+          <tr>
+            <th colspan="3" class="num">TOTAL</th>
+            <th class="num" id="nightSrcTotal">0</th>
+          </tr>
+        </table>
+        <div class="small" style="margin-top:8px;">
+          Barrier toggle included for future use (no attenuation applied yet).
+        </div>
+      </div>
+    </div>
+
+    <table>
+      <tr>
+        <th style="width:26%;">Receiver (Zone / Subzone)</th>
+        <th style="width:14%;" class="center">Receiver land use (single only)</th>
+
+        <th style="width:9%;" class="num">Day<br><span class="small">Pred</span></th>
+        <th style="width:9%;" class="num">Day<br><span class="small">Crit</span></th>
+        <th style="width:8%;" class="num">Day<br><span class="small">Δ</span></th>
+        <th style="width:8%;" class="center">Day<br><span class="small">OK?</span></th>
+
+        <th style="width:9%;" class="num">Night<br><span class="small">Pred</span></th>
+        <th style="width:9%;" class="num">Night<br><span class="small">Crit</span></th>
+        <th style="width:8%;" class="num">Night<br><span class="small">Δ</span></th>
+        <th style="width:8%;" class="center">Night<br><span class="small">OK?</span></th>
+
+        <th style="width:9%;" class="num">Lmax<br><span class="small">Pred</span></th>
+        <th style="width:9%;" class="num">Lmax<br><span class="small">Crit</span></th>
+        <th style="width:8%;" class="num">Lmax<br><span class="small">Δ</span></th>
+        <th style="width:8%;" class="center">Lmax<br><span class="small">OK?</span></th>
+      </tr>
+      <tbody id="rows"></tbody>
+    </table>
+
+    <div style="padding:12px 14px;">
+      <span class="badge">Δ = Pred − Crit (≤ 0 is compliant)</span>
+      <span class="badge">Residential/Rural Living caps: 52 day, 45 night, Lmax 60</span>
+    </div>
+  </div>
+</div>
+
+<script>
+const DATA = [{"key": "Adelaide Park Lands Zone | (no subzone)", "zone": "Adelaide Park Lands Zone", "subzone": "", "land_use_raw": "Residential, Commercial", "inf_day": 57, "inf_night": 50, "is_single": 0, "single_cat": ""}, {"key": "Adelaide Park Lands Zone | Adelaide Aquatic Centre Subzone", "zone": "Adelaide Park Lands Zone", "subzone": "Adelaide Aquatic Centre Subzone", "land_use_raw": "Commercial", "inf_day": 62, "inf_night": 55, "is_single": 1, "single_cat": "Commercial"}, {"key": "Business Neighbourhood Zone | (no subzone)", "zone": "Business Neighbourhood Zone", "subzone": "", "land_use_raw": "Residential, Commercial", "inf_day": 57, "inf_night": 50, "is_single": 0, "single_cat": ""}, {"key": "Business Neighbourhood Zone | Melbourne Street West Subzone", "zone": "Business Neighbourhood Zone", "subzone": "Melbourne Street West Subzone", "land_use_raw": "Residential, Commercial", "inf_day": 57, "inf_night": 50, "is_single": 0, "single_cat": ""}, {"key": "Capital City Zone | (no subzone)", "zone": "Capital City Zone", "subzone": "", "land_use_raw": "Residential, Commercial", "inf_day": 57, "inf_night": 50, "is_single": 0, "single_cat": ""}, {"key": "Capital City Zone | City Frame Subzone", "zone": "Capital City Zone", "subzone": "City Frame Subzone", "land_use_raw": "Residential, Commercial", "inf_day": 57, "inf_night": 50, "is_single": 0, "single_cat": ""}, {"key": "Caravan and Tourist Park Zone | (no subzone)", "zone": "Caravan and Tourist Park Zone", "subzone": "", "land_use_raw": "Residential", "inf_day": 52, "inf_night": 45, "is_single": 1, "single_cat": "Residential"}, {"key": "City Living Zone | (no subzone)", "zone": "City Living Zone", "subzone": "", "land_use_raw": "Residential", "inf_day": 52, "inf_night": 45, "is_single": 1, "single_cat": "Residential"}, {"key": "City Living Zone | Medium-High Intensity Subzone", "zone": "City Living Zone", "subzone": "Medium-High Intensity Subzone", "land_use_raw": "Residential", "inf_day": 52, "inf_night": 45, "is_single": 1, "single_cat": "Residential"}, {"key": "City Living Zone | North Adelaide Low Intensity Subzone", "zone": "City Living Zone", "subzone": "North Adelaide Low Intensity Subzone", "land_use_raw": "Residential", "inf_day": 52, "inf_night": 45, "is_single": 1, "single_cat": "Residential"}, {"key": "City Living Zone | East Terrace Subzone", "zone": "City Living Zone", "subzone": "East Terrace Subzone", "land_use_raw": "Residential", "inf_day": 52, "inf_night": 45, "is_single": 1, "single_cat": "Residential"}, {"key": "City Main Street Zone | (no subzone)", "zone": "City Main Street Zone", "subzone": "", "land_use_raw": "Residential, Commercial", "inf_day": 57, "inf_night": 50, "is_single": 0, "single_cat": ""}, {"key": "City Main Street Zone | Gouger and Grote Street Subzone", "zone": "City Main Street Zone", "subzone": "Gouger and Grote Street Subzone", "land_use_raw": "Commercial", "inf_day": 62, "inf_night": 55, "is_single": 1, "single_cat": "Commercial"}, {"key": "City Main Street Zone | Hindley Street Subzone", "zone": "City Main Street Zone", "subzone": "Hindley Street Subzone", "land_use_raw": "Residential, Commercial", "inf_day": 57, "inf_night": 50, "is_single": 0, "single_cat": ""}, {"key": "City Main Street Zone | Rundle Mall Subzone", "zone": "City Main Street Zone", "subzone": "Rundle Mall Subzone", "land_use_raw": "Commercial", "inf_day": 62, "inf_night": 55, "is_single": 1, "single_cat": "Commercial"}, {"key": "City Main Street Zone | Rundle Street Subzone", "zone": "City Main Street Zone", "subzone": "Rundle Street Subzone", "land_use_raw": "Residential, Commercial", "inf_day": 57, "inf_night": 50, "is_single": 0, "single_cat": ""}, {"key": "City Main Street Zone | City High Street Subzone", "zone": "City Main Street Zone", "subzone": "City High Street Subzone", "land_use_raw": "Residential, Commercial", "inf_day": 57, "inf_night": 50, "is_single": 0, "single_cat": ""}, {"key": "City Riverbank Zone | (no subzone)", "zone": "City Riverbank Zone", "subzone": "", "land_use_raw": "Commercial", "inf_day": 62, "inf_night": 55, "is_single": 1, "single_cat": "Commercial"}, {"key": "City Riverbank Zone | Cultural Institutions Subzone", "zone": "City Riverbank Zone", "subzone": "Cultural Institutions Subzone", "land_use_raw": "Commercial", "inf_day": 62, "inf_night": 55, "is_single": 1, "single_cat": "Commercial"}, {"key": "City Riverbank Zone | Entertainment Subzone", "zone": "City Riverbank Zone", "subzone": "Entertainment Subzone", "land_use_raw": "Commercial", "inf_day": 62, "inf_night": 55, "is_single": 1, "single_cat": "Commercial"}, {"key": "City Riverbank Zone | Health Subzone", "zone": "City Riverbank Zone", "subzone": "Health Subzone", "land_use_raw": "Commercial", "inf_day": 62, "inf_night": 55, "is_single": 1, "single_cat": "Commercial"}, {"key": "City Riverbank Zone | Innovation Subzone", "zone": "City Riverbank Zone", "subzone": "Innovation Subzone", "land_use_raw": "Commercial", "inf_day": 62, "inf_night": 55, "is_single": 1, "single_cat": "Commercial"}, {"key": "Coastal Waters and Offshore Islands Zone | (no subzone)", "zone": "Coastal Waters and Offshore Islands Zone", "subzone": "", "land_use_raw": "Rural Living, Rural Industry", "inf_day": 52, "inf_night": 45, "is_single": 0, "single_cat": ""}, {"key": "Commonwealth Facilities Zone | (no subzone)", "zone": "Commonwealth Facilities Zone", "subzone": "", "land_use_raw": "Special Industry", "inf_day": 70, "inf_night": 60, "is_single": 1, "single_cat": "Special Industry"}, {"key": "Community Facilities Zone | (no subzone)", "zone": "Community Facilities Zone", "subzone": "", "land_use_raw": "Commercial", "inf_day": 62, "inf_night": 55, "is_single": 1, "single_cat": "Commercial"}, {"key": "Community Facilities Zone | St Andrews Hospital Precinct Subzone", "zone": "Community Facilities Zone", "subzone": "St Andrews Hospital Precinct Subzone", "land_use_raw": "Commercial", "inf_day": 62, "inf_night": 55, "is_single": 1, "single_cat": "Commercial"}, {"key": "Community Facilities Zone | Women’s and Children’s Hospital and Memorial Hospital Precinct Subzone", "zone": "Community Facilities Zone", "subzone": "Women’s and Children’s Hospital and Memorial Hospital Precinct Subzone", "land_use_raw": "Commercial", "inf_day": 62, "inf_night": 55, "is_single": 1, "single_cat": "Commercial"}, {"key": "Community Facilities Zone | Neighbourhood Subzone", "zone": "Community Facilities Zone", "subzone": "Neighbourhood Subzone", "land_use_raw": "Residential, Commercial", "inf_day": 57, "inf_night": 50, "is_single": 0, "single_cat": ""}, {"key": "Conservation Zone | (no subzone)", "zone": "Conservation Zone", "subzone": "", "land_use_raw": "Rural Living", "inf_day": 47, "inf_night": 40, "is_single": 1, "single_cat": "Rural Living"}, {"key": "Conservation Zone | Aquaculture and Recreation Subzone", "zone": "Conservation Zone", "subzone": "Aquaculture and Recreation Subzone", "land_use_raw": "Rural Living, Rural industry", "inf_day": 52, "inf_night": 45, "is_single": 0, "single_cat": ""}, {"key": "Conservation Zone | Dwelling Subzone", "zone": "Conservation Zone", "subzone": "Dwelling Subzone", "land_use_raw": "Rural Living", "inf_day": 47, "inf_night": 40, "is_single": 1, "single_cat": "Rural Living"}, {"key": "Conservation Zone | Shack Relocation Subzone", "zone": "Conservation Zone", "subzone": "Shack Relocation Subzone", "land_use_raw": "Rural Living", "inf_day": 47, "inf_night": 40, "is_single": 1, "single_cat": "Rural Living"}, {"key": "Conservation Zone | Small Scale Settlement Subzone", "zone": "Conservation Zone", "subzone": "Small Scale Settlement Subzone", "land_use_raw": "Rural Living", "inf_day": 47, "inf_night": 40, "is_single": 1, "single_cat": "Rural Living"}, {"key": "Conservation Zone | Visitor Experience Subzone", "zone": "Conservation Zone", "subzone": "Visitor Experience Subzone", "land_use_raw": "Rural Living", "inf_day": 47, "inf_night": 40, "is_single": 1, "single_cat": "Rural Living"}, {"key": "Deferred Urban Zone | (no subzone)", "zone": "Deferred Urban Zone", "subzone": "", "land_use_raw": "Rural Industry", "inf_day": 57, "inf_night": 50, "is_single": 1, "single_cat": "Rural Industry"}, {"key": "Employment Zone | (no subzone)", "zone": "Employment Zone", "subzone": "", "land_use_raw": "Light Industry, Commercial", "inf_day": 60, "inf_night": 52, "is_single": 0, "single_cat": ""}, {"key": "Employment Zone | Roadside Service Centre Subzone", "zone": "Employment Zone", "subzone": "Roadside Service Centre Subzone", "land_use_raw": "Commercial", "inf_day": 62, "inf_night": 55, "is_single": 1, "single_cat": "Commercial"}, {"key": "Employment Zone | Retail Activity Centre Subzone", "zone": "Employment Zone", "subzone": "Retail Activity Centre Subzone", "land_use_raw": "Commercial", "inf_day": 62, "inf_night": 55, "is_single": 1, "single_cat": "Commercial"}, {"key": "Employment (Bulk Handling) Zone | (no subzone)", "zone": "Employment (Bulk Handling) Zone", "subzone": "", "land_use_raw": "Special Industry", "inf_day": 70, "inf_night": 60, "is_single": 1, "single_cat": "Special Industry"}, {"key": "Employment (Enterprise) Zone | (no subzone)", "zone": "Employment (Enterprise) Zone", "subzone": "", "land_use_raw": "General Industry", "inf_day": 65, "inf_night": 55, "is_single": 1, "single_cat": "General Industry"}, {"key": "Employment (Enterprise) Zone | Light Industry Subzone", "zone": "Employment (Enterprise) Zone", "subzone": "Light Industry Subzone", "land_use_raw": "Light industry", "inf_day": 57, "inf_night": 50, "is_single": 1, "single_cat": "Light Industry"}, {"key": "Established Neighbourhood Zone | (no subzone)", "zone": "Established Neighbourhood Zone", "subzone": "", "land_use_raw": "Residential", "inf_day": 52, "inf_night": 45, "is_single": 1, "single_cat": "Residential"}, {"key": "General Neighbourhood Zone | (no subzone)", "zone": "General Neighbourhood Zone", "subzone": "", "land_use_raw": "Residential", "inf_day": 52, "inf_night": 45, "is_single": 1, "single_cat": "Residential"}, {"key": "Golf Course Estate Zone | (no subzone)", "zone": "Golf Course Estate Zone", "subzone": "", "land_use_raw": "Residential", "inf_day": 52, "inf_night": 45, "is_single": 1, "single_cat": "Residential"}, {"key": "Hills Face Zone | (no subzone)", "zone": "Hills Face Zone", "subzone": "", "land_use_raw": "Rural Living, Rural Industry", "inf_day": 52, "inf_night": 45, "is_single": 0, "single_cat": ""}, {"key": "Hills Neighbourhood Zone | (no subzone)", "zone": "Hills Neighbourhood Zone", "subzone": "", "land_use_raw": "Residential", "inf_day": 52, "inf_night": 45, "is_single": 1, "single_cat": "Residential"}, {"key": "Home Industry Zone | (no subzone)", "zone": "Home Industry Zone", "subzone": "", "land_use_raw": "Residential, Light Industry", "inf_day": 54, "inf_night": 48, "is_single": 0, "single_cat": ""}, {"key": "Housing Diversity Neighbourhood Zone | (no subzone)", "zone": "Housing Diversity Neighbourhood Zone", "subzone": "", "land_use_raw": "Residential", "inf_day": 52, "inf_night": 45, "is_single": 1, "single_cat": "Residential"}, {"key": "Infrastructure Zone | (no subzone)", "zone": "Infrastructure Zone", "subzone": "", "land_use_raw": "Special Industry", "inf_day": 70, "inf_night": 60, "is_single": 1, "single_cat": "Special Industry"}, {"key": "Infrastructure (Airfield) Zone | (no subzone)", "zone": "Infrastructure (Airfield) Zone", "subzone": "", "land_use_raw": "Special Industry", "inf_day": 70, "inf_night": 60, "is_single": 1, "single_cat": "Special Industry"}, {"key": "Infrastructure (Airfield) Zone | Residential Aviation Estate Subzone", "zone": "Infrastructure (Airfield) Zone", "subzone": "Residential Aviation Estate Subzone", "land_use_raw": "Residential", "inf_day": 52, "inf_night": 45, "is_single": 1, "single_cat": "Residential"}, {"key": "Infrastructure (Ferry and Marina Facilities) Zone | (no subzone)", "zone": "Infrastructure (Ferry and Marina Facilities) Zone", "subzone": "", "land_use_raw": "Commercial", "inf_day": 62, "inf_night": 55, "is_single": 1, "single_cat": "Commercial"}, {"key": "Infrastructure (Ferry and Marina Facilities) Zone | Wallaroo Marina Subzone", "zone": "Infrastructure (Ferry and Marina Facilities) Zone", "subzone": "Wallaroo Marina Subzone", "land_use_raw": "Residential, Commercial", "inf_day": 57, "inf_night": 50, "is_single": 0, "single_cat": ""}, {"key": "Local Activity Centre Zone | (no subzone)", "zone": "Local Activity Centre Zone", "subzone": "", "land_use_raw": "Commercial", "inf_day": 62, "inf_night": 55, "is_single": 1, "single_cat": "Commercial"}, {"key": "Master Planned Neighbourhood Zone | (no subzone)", "zone": "Master Planned Neighbourhood Zone", "subzone": "", "land_use_raw": "Residential", "inf_day": 52, "inf_night": 45, "is_single": 1, "single_cat": "Residential"}, {"key": "Master Planned Neighbourhood Zone | Emerging Activity Centre Subzone", "zone": "Master Planned Neighbourhood Zone", "subzone": "Emerging Activity Centre Subzone", "land_use_raw": "Residential", "inf_day": 52, "inf_night": 45, "is_single": 1, "single_cat": "Residential"}, {"key": "Master Planned Neighbourhood Zone | Hills Subzone", "zone": "Master Planned Neighbourhood Zone", "subzone": "Hills Subzone", "land_use_raw": "Residential", "inf_day": 52, "inf_night": 45, "is_single": 1, "single_cat": "Residential"}, {"key": "Master Planned Renewal Zone | (no subzone)", "zone": "Master Planned Renewal Zone", "subzone": "", "land_use_raw": "Residential", "inf_day": 52, "inf_night": 45, "is_single": 1, "single_cat": "Residential"}, {"key": "Master Planned Township Zone | (no subzone)", "zone": "Master Planned Township Zone", "subzone": "", "land_use_raw": "Residential", "inf_day": 52, "inf_night": 45, "is_single": 1, "single_cat": "Residential"}, {"key": "Master Planned Township Zone | Emerging Township Activity Centre Subzone", "zone": "Master Planned Township Zone", "subzone": "Emerging Township Activity Centre Subzone", "land_use_raw": "Commercial", "inf_day": 62, "inf_night": 55, "is_single": 1, "single_cat": "Commercial"}, {"key": "Motorsport Park Zone | (no subzone)", "zone": "Motorsport Park Zone", "subzone": "", "land_use_raw": "Special industry", "inf_day": 70, "inf_night": 60, "is_single": 1, "single_cat": "Special Industry"}, {"key": "Neighbourhood Zone | (no subzone)", "zone": "Neighbourhood Zone", "subzone": "", "land_use_raw": "Residential", "inf_day": 52, "inf_night": 45, "is_single": 1, "single_cat": "Residential"}, {"key": "Neighbourhood Zone | American River Subzone", "zone": "Neighbourhood Zone", "subzone": "American River Subzone", "land_use_raw": "Residential", "inf_day": 52, "inf_night": 45, "is_single": 1, "single_cat": "Residential"}, {"key": "Neighbourhood Zone | Roxby Downs Subzone", "zone": "Neighbourhood Zone", "subzone": "Roxby Downs Subzone", "land_use_raw": "Residential", "inf_day": 52, "inf_night": 45, "is_single": 1, "single_cat": "Residential"}, {"key": "Neighbourhood Zone | Underground Subzone", "zone": "Neighbourhood Zone", "subzone": "Underground Subzone", "land_use_raw": "Residential", "inf_day": 52, "inf_night": 45, "is_single": 1, "single_cat": "Residential"}, {"key": "Neighbourhood Zone | Wallaroo Landmark Subzone", "zone": "Neighbourhood Zone", "subzone": "Wallaroo Landmark Subzone", "land_use_raw": "Residential", "inf_day": 52, "inf_night": 45, "is_single": 1, "single_cat": "Residential"}, {"key": "Neighbourhood Zone | Waterfront Subzone", "zone": "Neighbourhood Zone", "subzone": "Waterfront Subzone", "land_use_raw": "Residential", "inf_day": 52, "inf_night": 45, "is_single": 1, "single_cat": "Residential"}, {"key": "Open Space Zone | (no subzone)", "zone": "Open Space Zone", "subzone": "", "land_use_raw": "Rural Living in non-urban areas Residential in urban areas", "inf_day": 50, "inf_night": 42, "is_single": 0, "single_cat": ""}, {"key": "Productive Rural Landscape Zone | (no subzone)", "zone": "Productive Rural Landscape Zone", "subzone": "", "land_use_raw": "Rural Industry", "inf_day": 57, "inf_night": 50, "is_single": 1, "single_cat": "Rural Industry"}, {"key": "Productive Rural Landscape Zone | The Cedars Subzone", "zone": "Productive Rural Landscape Zone", "subzone": "The Cedars Subzone", "land_use_raw": "Commercial", "inf_day": 62, "inf_night": 55, "is_single": 1, "single_cat": "Commercial"}, {"key": "Recreation Zone | (no subzone)", "zone": "Recreation Zone", "subzone": "", "land_use_raw": "Commercial", "inf_day": 62, "inf_night": 55, "is_single": 1, "single_cat": "Commercial"}, {"key": "Recreation Zone | Adelaide Showgrounds Subzone", "zone": "Recreation Zone", "subzone": "Adelaide Showgrounds Subzone", "land_use_raw": "Commercial", "inf_day": 62, "inf_night": 55, "is_single": 1, "single_cat": "Commercial"}, {"key": "Remote Areas Zone | (no subzone)", "zone": "Remote Areas Zone", "subzone": "", "land_use_raw": "Rural Living, Residential, Rural Industry, Commercial, General Industry", "inf_day": 57, "inf_night": 49, "is_single": 0, "single_cat": ""}, {"key": "Residential Park Zone | (no subzone)", "zone": "Residential Park Zone", "subzone": "", "land_use_raw": "Residential", "inf_day": 52, "inf_night": 45, "is_single": 1, "single_cat": "Residential"}, {"key": "Resource Extraction Zone | (no subzone)", "zone": "Resource Extraction Zone", "subzone": "", "land_use_raw": "General Industry", "inf_day": 65, "inf_night": 55, "is_single": 1, "single_cat": "General Industry"}, {"key": "Rural Zone | (no subzone)", "zone": "Rural Zone", "subzone": "", "land_use_raw": "Rural Industry", "inf_day": 57, "inf_night": 50, "is_single": 1, "single_cat": "Rural Industry"}, {"key": "Rural Zone | Kangaroo Island Subzone", "zone": "Rural Zone", "subzone": "Kangaroo Island Subzone", "land_use_raw": "Rural Industry", "inf_day": 57, "inf_night": 50, "is_single": 1, "single_cat": "Rural Industry"}, {"key": "Rural Aquaculture Zone | (no subzone)", "zone": "Rural Aquaculture Zone", "subzone": "", "land_use_raw": "Rural Industry", "inf_day": 57, "inf_night": 50, "is_single": 1, "single_cat": "Rural Industry"}, {"key": "Rural Horticulture Zone | (no subzone)", "zone": "Rural Horticulture Zone", "subzone": "", "land_use_raw": "Rural Industry", "inf_day": 57, "inf_night": 50, "is_single": 1, "single_cat": "Rural Industry"}, {"key": "Rural Horticulture Zone | Windamere Park Subzone", "zone": "Rural Horticulture Zone", "subzone": "Windamere Park Subzone", "land_use_raw": "Residential, Rural Industry", "inf_day": 54, "inf_night": 48, "is_single": 0, "single_cat": ""}, {"key": "Rural Intensive Enterprise Zone | (no subzone)", "zone": "Rural Intensive Enterprise Zone", "subzone": "", "land_use_raw": "Rural Industry, General Industry", "inf_day": 61, "inf_night": 52, "is_single": 0, "single_cat": ""}, {"key": "Rural Living Zone | (no subzone)", "zone": "Rural Living Zone", "subzone": "", "land_use_raw": "Rural Living", "inf_day": 47, "inf_night": 40, "is_single": 1, "single_cat": "Rural Living"}, {"key": "Rural Living Zone | Animal Husbandry Subzone", "zone": "Rural Living Zone", "subzone": "Animal Husbandry Subzone", "land_use_raw": "Rural Living, Rural Industry", "inf_day": 52, "inf_night": 45, "is_single": 0, "single_cat": ""}, {"key": "Rural Living Zone | Intensive Horse Establishments Subzone", "zone": "Rural Living Zone", "subzone": "Intensive Horse Establishments Subzone", "land_use_raw": "Rural Industry", "inf_day": 57, "inf_night": 50, "is_single": 1, "single_cat": "Rural Industry"}, {"key": "Rural Neighbourhood Zone | (no subzone)", "zone": "Rural Neighbourhood Zone", "subzone": "", "land_use_raw": "Rural Living", "inf_day": 47, "inf_night": 40, "is_single": 1, "single_cat": "Rural Living"}, {"key": "Rural Neighbourhood Zone | Bookmark Creek Subzone", "zone": "Rural Neighbourhood Zone", "subzone": "Bookmark Creek Subzone", "land_use_raw": "Rural Living", "inf_day": 47, "inf_night": 40, "is_single": 1, "single_cat": "Rural Living"}, {"key": "Rural Neighbourhood Zone | Adelaide Hills Subzone", "zone": "Rural Neighbourhood Zone", "subzone": "Adelaide Hills Subzone", "land_use_raw": "Residential", "inf_day": 52, "inf_night": 45, "is_single": 1, "single_cat": "Residential"}, {"key": "Rural Settlement Zone | (no subzone)", "zone": "Rural Settlement Zone", "subzone": "", "land_use_raw": "Residential", "inf_day": 52, "inf_night": 45, "is_single": 1, "single_cat": "Residential"}, {"key": "Rural Settlement Zone | Fisherman Bay Subzone", "zone": "Rural Settlement Zone", "subzone": "Fisherman Bay Subzone", "land_use_raw": "Residential", "inf_day": 52, "inf_night": 45, "is_single": 1, "single_cat": "Residential"}, {"key": "Rural Shack Settlement Zone | (no subzone)", "zone": "Rural Shack Settlement Zone", "subzone": "", "land_use_raw": "Residential", "inf_day": 52, "inf_night": 45, "is_single": 1, "single_cat": "Residential"}, {"key": "Strategic Employment Zone | (no subzone)", "zone": "Strategic Employment Zone", "subzone": "", "land_use_raw": "General Industry", "inf_day": 65, "inf_night": 55, "is_single": 1, "single_cat": "General Industry"}, {"key": "Strategic Employment Zone | Gillman Subzone", "zone": "Strategic Employment Zone", "subzone": "Gillman Subzone", "land_use_raw": "General Industry", "inf_day": 65, "inf_night": 55, "is_single": 1, "single_cat": "General Industry"}, {"key": "Strategic Employment Zone | National Naval Shipbuilding Subzone", "zone": "Strategic Employment Zone", "subzone": "National Naval Shipbuilding Subzone", "land_use_raw": "Special Industry", "inf_day": 70, "inf_night": 60, "is_single": 1, "single_cat": "Special Industry"}, {"key": "Strategic Employment Zone | Ports Subzone", "zone": "Strategic Employment Zone", "subzone": "Ports Subzone", "land_use_raw": "Special Industry", "inf_day": 70, "inf_night": 60, "is_single": 1, "single_cat": "Special Industry"}, {"key": "Strategic Employment Zone | Significant Industry Subzone", "zone": "Strategic Employment Zone", "subzone": "Significant Industry Subzone", "land_use_raw": "Special Industry", "inf_day": 70, "inf_night": 60, "is_single": 1, "single_cat": "Special Industry"}, {"key": "Strategic Innovation Zone | (no subzone)", "zone": "Strategic Innovation Zone", "subzone": "", "land_use_raw": "Commercial", "inf_day": 62, "inf_night": 55, "is_single": 1, "single_cat": "Commercial"}, {"key": "Strategic Innovation Zone | Rehabilitation Subzone", "zone": "Strategic Innovation Zone", "subzone": "Rehabilitation Subzone", "land_use_raw": "Commercial", "inf_day": 62, "inf_night": 55, "is_single": 1, "single_cat": "Commercial"}, {"key": "Strategic Innovation Zone | Flinders Subzone", "zone": "Strategic Innovation Zone", "subzone": "Flinders Subzone", "land_use_raw": "Residential, Commercial", "inf_day": 57, "inf_night": 50, "is_single": 0, "single_cat": ""}, {"key": "Strategic Innovation Zone | Repatriation Subzone", "zone": "Strategic Innovation Zone", "subzone": "Repatriation Subzone", "land_use_raw": "Commercial", "inf_day": 62, "inf_night": 55, "is_single": 1, "single_cat": "Commercial"}, {"key": "Strategic Innovation Zone | Activity Node Subzone", "zone": "Strategic Innovation Zone", "subzone": "Activity Node Subzone", "land_use_raw": "Commercial", "inf_day": 62, "inf_night": 55, "is_single": 1, "single_cat": "Commercial"}, {"key": "Suburban Activity Centre Zone | (no subzone)", "zone": "Suburban Activity Centre Zone", "subzone": "", "land_use_raw": "Commercial", "inf_day": 62, "inf_night": 55, "is_single": 1, "single_cat": "Commercial"}, {"key": "Suburban Business Zone | (no subzone)", "zone": "Suburban Business Zone", "subzone": "", "land_use_raw": "Residential, Light Industry, Commercial", "inf_day": 57, "inf_night": 50, "is_single": 0, "single_cat": ""}, {"key": "Suburban Main Street Zone | (no subzone)", "zone": "Suburban Main Street Zone", "subzone": "", "land_use_raw": "Residential, Commercial", "inf_day": 57, "inf_night": 50, "is_single": 0, "single_cat": ""}, {"key": "Suburban Neighbourhood Zone | (no subzone)", "zone": "Suburban Neighbourhood Zone", "subzone": "", "land_use_raw": "Residential", "inf_day": 52, "inf_night": 45, "is_single": 1, "single_cat": "Residential"}, {"key": "Tourism Development Zone | (no subzone)", "zone": "Tourism Development Zone", "subzone": "", "land_use_raw": "Commercial", "inf_day": 62, "inf_night": 55, "is_single": 1, "single_cat": "Commercial"}, {"key": "Tourism Development Zone | Monarto Safari Park Subzone", "zone": "Tourism Development Zone", "subzone": "Monarto Safari Park Subzone", "land_use_raw": "Commercial", "inf_day": 62, "inf_night": 55, "is_single": 1, "single_cat": "Commercial"}, {"key": "Tourism Development Zone | River Murray Experience Subzone", "zone": "Tourism Development Zone", "subzone": "River Murray Experience Subzone", "land_use_raw": "Commercial", "inf_day": 62, "inf_night": 55, "is_single": 1, "single_cat": "Commercial"}, {"key": "Tourism Development Zone | Winery Experience Subzone", "zone": "Tourism Development Zone", "subzone": "Winery Experience Subzone", "land_use_raw": "Commercial", "inf_day": 62, "inf_night": 55, "is_single": 1, "single_cat": "Commercial"}, {"key": "Township Neighbourhood Zone | (no subzone)", "zone": "Township Neighbourhood Zone", "subzone": "", "land_use_raw": "Residential", "inf_day": 52, "inf_night": 45, "is_single": 1, "single_cat": "Residential"}, {"key": "Township Zone | (no subzone)", "zone": "Township Zone", "subzone": "", "land_use_raw": "Residential, Light Industry, Commercial", "inf_day": 57, "inf_night": 50, "is_single": 0, "single_cat": ""}, {"key": "Township Zone | Nairne Redevelopment Subzone", "zone": "Township Zone", "subzone": "Nairne Redevelopment Subzone", "land_use_raw": "Residential, Commercial", "inf_day": 57, "inf_night": 50, "is_single": 0, "single_cat": ""}, {"key": "Township Activity Centre Zone | (no subzone)", "zone": "Township Activity Centre Zone", "subzone": "", "land_use_raw": "Commercial", "inf_day": 62, "inf_night": 55, "is_single": 1, "single_cat": "Commercial"}, {"key": "Township Main Street Zone | (no subzone)", "zone": "Township Main Street Zone", "subzone": "", "land_use_raw": "Commercial", "inf_day": 62, "inf_night": 55, "is_single": 1, "single_cat": "Commercial"}, {"key": "Urban Activity Centre Zone | (no subzone)", "zone": "Urban Activity Centre Zone", "subzone": "", "land_use_raw": "Commercial", "inf_day": 62, "inf_night": 55, "is_single": 1, "single_cat": "Commercial"}, {"key": "Urban Activity Centre Zone | Port Adelaide Centre Subzone", "zone": "Urban Activity Centre Zone", "subzone": "Port Adelaide Centre Subzone", "land_use_raw": "Residential, Commercial", "inf_day": 57, "inf_night": 50, "is_single": 0, "single_cat": ""}, {"key": "Urban Corridor (Boulevard) Zone | (no subzone)", "zone": "Urban Corridor (Boulevard) Zone", "subzone": "", "land_use_raw": "Residential, Commercial", "inf_day": 57, "inf_night": 50, "is_single": 0, "single_cat": ""}, {"key": "Urban Corridor (Business) Zone | (no subzone)", "zone": "Urban Corridor (Business) Zone", "subzone": "", "land_use_raw": "Light industry, Commercial", "inf_day": 60, "inf_night": 52, "is_single": 0, "single_cat": ""}, {"key": "Urban Corridor (Business) Zone | Urban Corridor Business Retail Subzone", "zone": "Urban Corridor (Business) Zone", "subzone": "Urban Corridor Business Retail Subzone", "land_use_raw": "Commercial", "inf_day": 62, "inf_night": 55, "is_single": 1, "single_cat": "Commercial"}, {"key": "Urban Corridor (Living) Zone | (no subzone)", "zone": "Urban Corridor (Living) Zone", "subzone": "", "land_use_raw": "Residential", "inf_day": 52, "inf_night": 45, "is_single": 1, "single_cat": "Residential"}, {"key": "Urban Corridor (Living) Zone | Urban Corridor Living Retail Subzone", "zone": "Urban Corridor (Living) Zone", "subzone": "Urban Corridor Living Retail Subzone", "land_use_raw": "Commercial", "inf_day": 62, "inf_night": 55, "is_single": 1, "single_cat": "Commercial"}, {"key": "Urban Corridor (Main Street) Zone | (no subzone)", "zone": "Urban Corridor (Main Street) Zone", "subzone": "", "land_use_raw": "Residential, Commercial", "inf_day": 57, "inf_night": 50, "is_single": 0, "single_cat": ""}, {"key": "Urban Neighbourhood Zone | (no subzone)", "zone": "Urban Neighbourhood Zone", "subzone": "", "land_use_raw": "Residential, Light industry, Commercial", "inf_day": 57, "inf_night": 50, "is_single": 0, "single_cat": ""}, {"key": "Urban Neighbourhood Zone | Main Street Subzone", "zone": "Urban Neighbourhood Zone", "subzone": "Main Street Subzone", "land_use_raw": "Residential, Commercial", "inf_day": 57, "inf_night": 50, "is_single": 0, "single_cat": ""}, {"key": "Urban Neighbourhood Zone | Urban Neighbourhood Retail Subzone", "zone": "Urban Neighbourhood Zone", "subzone": "Urban Neighbourhood Retail Subzone", "land_use_raw": "Commercial", "inf_day": 62, "inf_night": 55, "is_single": 1, "single_cat": "Commercial"}, {"key": "Urban Renewal Neighbourhood Zone | (no subzone)", "zone": "Urban Renewal Neighbourhood Zone", "subzone": "", "land_use_raw": "Residential", "inf_day": 52, "inf_night": 45, "is_single": 1, "single_cat": "Residential"}, {"key": "Urban Renewal Neighbourhood Zone | Mixed Use Transition Subzone", "zone": "Urban Renewal Neighbourhood Zone", "subzone": "Mixed Use Transition Subzone", "land_use_raw": "Residential, Light Industry, Commercial", "inf_day": 57, "inf_night": 50, "is_single": 0, "single_cat": ""}, {"key": "Urban Renewal Neighbourhood Zone | Landscape Transition Subzone", "zone": "Urban Renewal Neighbourhood Zone", "subzone": "Landscape Transition Subzone", "land_use_raw": "Residential", "inf_day": 52, "inf_night": 45, "is_single": 1, "single_cat": "Residential"}, {"key": "Waterfront Neighbourhood Zone | (no subzone)", "zone": "Waterfront Neighbourhood Zone", "subzone": "", "land_use_raw": "Residential", "inf_day": 52, "inf_night": 45, "is_single": 1, "single_cat": "Residential"}, {"key": "Workers’ Settlement Zone | (no subzone)", "zone": "Workers’ Settlement Zone", "subzone": "", "land_use_raw": "Residential", "inf_day": 52, "inf_night": 45, "is_single": 1, "single_cat": "Residential"}];
+const SOURCE_LIBRARY = [{"name": "Small truck idling", "lw": 90.3}, {"name": "Small truck driving slowly", "lw": 99.3}, {"name": "Small truck exhaust", "lw": 91.3}, {"name": "Small truck accelerating - Lmax", "lw": 106.3}, {"name": "Medium truck idling", "lw": 93.5}, {"name": "Medium truck driving slowly", "lw": 102.3}, {"name": "Medium truck exhaust", "lw": 94.3}, {"name": "Medium truck accelerating - Lmax", "lw": 109.2}, {"name": "Large truck idling", "lw": 96.1}, {"name": "Large truck driving slowly", "lw": 105.2}, {"name": "Large truck exhaust", "lw": 97.2}, {"name": "Large truck accelerating - Lmax", "lw": 112.2}, {"name": "Refrigerated truck condenser (small/medium truck)", "lw": 92.4}, {"name": "Refrigerated truck condenser (large truck)", "lw": 98.5}, {"name": "Truck air brake release Lmax", "lw": 111.1}, {"name": "Truck air horn Lmax", "lw": 118.7}, {"name": "Car idling", "lw": 75.0}, {"name": "Car driving slowly", "lw": 81.0}, {"name": "Van idling", "lw": 80.0}, {"name": "Van driving slowly", "lw": 86.0}, {"name": "Car engine start - Lmax", "lw": 98.3}, {"name": "Car door slam - Lmax", "lw": 98.0}, {"name": "Speaker box", "lw": 83.8}, {"name": "Speaker box - Lmax", "lw": 99.7}, {"name": "Outdoor patron", "lw": 74.2}, {"name": "Voice at pickup window", "lw": 68.2}, {"name": "Electric forklift - typical activity", "lw": 84.1}, {"name": "Gas forklift - typical activity", "lw": 91.7}, {"name": "Diesel forklift - typical activity", "lw": 100.1}, {"name": "Forklift clanging forks - Lmax", "lw": 110.8}, {"name": "Forklift horn - Lmax", "lw": 111.3}, {"name": "Warehouse - internal reverberant level", "lw": 80.7}, {"name": "Vacuum", "lw": 88.1}, {"name": "Dog barking - SEL per bark", "lw": 101.0}, {"name": "Dog barking - Lmax", "lw": 95.0}, {"name": "Dog wash", "lw": 86.0}, {"name": "Car wash - manual", "lw": 96.0}, {"name": "Car wash - auto", "lw": 91.2}, {"name": "Air Conditioning Condenser (High Fan Speed) - Supermarket Lw 85 dB(A)", "lw": 84.5}, {"name": "Refrigeration Condenser (High Fan Speed) - Supermarket Lw 88 dB(A)", "lw": 87.6}, {"name": "Small exhaust fan (toilet, garbage room) - Lw 60 dB(A)", "lw": 60.4}, {"name": "Small kitchen exhaust fan - Lw 70 dB(A)", "lw": 70.4}, {"name": "Carpark exhaust fan Lw 85 dB(A) - outlet", "lw": 85.1}, {"name": "Large General exhaust fan—Lw 94 dB(A) / Lp 75 dB(A) at 3m", "lw": 94.0}, {"name": "Condenser - small single fan outdoor unit (Lw 65 dB(A))", "lw": 65.7}, {"name": "Condenser - medium double fan outdoor unit (Lw 70 dB(A))", "lw": 70.7}, {"name": "Condenser - large double fan outdoor unit (Lw 80 dB(A))", "lw": 75.7}, {"name": "Evaporative cooler—Braemar RPB600 Radiated—Lw 80 dB(A)", "lw": 80.3}, {"name": "Evaporative cooler—Braemar RPB700 Radiated—Lw 78 dB(A)", "lw": 77.9}, {"name": "Evaporative cooler—Braemar RPB900 Radiated—Lw 84 dB(A)", "lw": 84.6}, {"name": "Evaporative cooler—Braemar RPB1000 Radiated—Lw 89 dB(A)", "lw": 89.9}, {"name": "Evaporative cooler—Braemar RPB1200 Radiated—Lw 88 dB(A)", "lw": 88.9}, {"name": "Evaporative cooler—Braemar RPB1300 Radiated—Lw 89 dB(A)", "lw": 89.9}, {"name": "Evaporative cooler—Braemar RPB1400 Radiated—Lw 93 dB(A)", "lw": 92.9}, {"name": "Evaporative cooler—Braemar RPB1500 Radiated—Lw 94 dB(A)", "lw": 94.3}, {"name": "Evaporative cooler—Braemar RPB1800 Radiated—Lw 96 dB(A)", "lw": 96.5}, {"name": "Carrier air cooled chillers (screw fixed speed)—30XBE 500 Standard Lw 99 dB(A)", "lw": 99.0}, {"name": "Carrier air cooled chillers (screw fixed speed)—30XBE 500 Standard+Option15 Lw 95 dB(A)", "lw": 95.0}, {"name": "Carrier air cooled chillers (screw fixed speed)—30XBE 500  Standard+Option15LS Lw 91 dB(A)", "lw": 91.0}, {"name": "Carrier air cooled chillers (screw fixed speed)—30XBE 500  Standard+Option15LS+ Lw 89 dB(A)", "lw": 88.8}, {"name": "Carrier air cooled chillers (screw fixed speed)—30XBE 350 Standard Lw 99 dB(A)", "lw": 99.1}, {"name": "Carrier air cooled chillers (screw fixed speed)—30XBE 350  Standard+Option15 Lw 94 dB(A)", "lw": 94.0}, {"name": "Carrier air cooled chillers (screw fixed speed)—30XBE 350  Standard+Option15LS Lw 87 dB(A)", "lw": 87.1}, {"name": "Daikin air colled single screw chiller / heat pump Lw 102 dB(A)", "lw": 102.4}, {"name": "Cooling Tower (single unit, 5.5kW, 2.28x2.28x3.25mm) Lw 87 dB(A)", "lw": 87.4}, {"name": "Smoke Spill Fans—outlet—Lw 102 dB(Z) / Lw 95 dB(A) / Lp 75 dB(A) @ 3m", "lw": 95.5}, {"name": "Large Dust Extractor - Lw 97 dB(A) / 75 dB(A) @ 5m", "lw": 96.5}, {"name": "Medium Dust Extractor - Lw 91 dB(A) / 68 dB(A) @ 5m", "lw": 90.5}, {"name": "Enclosed Generator Set 220kVA—Cummins C220 D5e 50 Hz (enclosed  with genset mounted muffler - @75% load 96 dB(A) Lw)", "lw": 95.8}, {"name": "Enclosed Generator Set 220kVA —Cummins C220 D5e 50 Hz (enclosed  with genset mounted muffler - @100% load 97 dB(A) Lw)", "lw": 96.6}, {"name": "Enclosed Generator Set 220kVA —Cummins C220 D5e 50 Hz (enclosed  with genset mounted muffler - @110% load 97 dB(A) Lw)", "lw": 96.8}, {"name": "Open Generator—Cummins C1100 D5 QST30-G4 50 Hz Diesel (100% Prime - engine, no exhaust no muffler)", "lw": 117.1}, {"name": "Open Generator—Cummins C1100 D5 QST30-G4 50 Hz Diesel (100% Prime - open exhaust)", "lw": 126.1}, {"name": "Firepump PowerMaXX DP4400N 2400 RPM 101 dB(A) @ 1m", "lw": 111.7}, {"name": "10 children: 0 - 2 years", "lw": 77.6}, {"name": "10 children: 2 - 3 years", "lw": 84.6}, {"name": "10 children: 3 - 5 years", "lw": 86.6}, {"name": "Patron in bar setting (SA)", "lw": 74.2}, {"name": "Vertical consumption ('worst-case' crowd) - per person", "lw": 88.0}, {"name": "Taverns with significant food offerings - per person", "lw": 83.0}, {"name": "Restaurant dining - per person", "lw": 78.0}, {"name": "Small smoking areas (<40 patrons) - per person", "lw": 73.0}, {"name": "Male talker - normal vocal effort", "lw": 58.0}, {"name": "Male talker - raised vocal effort", "lw": 66.3}, {"name": "Male talker - loud vocal effort", "lw": 75.6}, {"name": "Background music - conversation and normal effort - Leq", "lw": 70.0}, {"name": "Background music - conversation and normal effort - L10", "lw": 72.0}, {"name": "Background music - conversation and raised effort - Leq", "lw": 75.0}, {"name": "Background music - conversation and raised effort - L10", "lw": 77.0}, {"name": "Foreground music - Acoustic amplified - Leq", "lw": 80.0}, {"name": "Foreground music - Acoustic amplified - L10", "lw": 82.0}, {"name": "Foreground music - Ambient DJ - Leq", "lw": 85.2}, {"name": "Foreground music - Ambient DJ - L10", "lw": 87.2}, {"name": "Foreground music - Function room / wedding - Leq", "lw": 89.6}, {"name": "Foreground music - Function room / wedding - L10", "lw": 91.6}, {"name": "Foreground music - nightclub - Leq", "lw": 95.4}, {"name": "Foreground music - nightclub - L10", "lw": 97.4}, {"name": "Gynmasium - general sporting activity, overall reverberant level", "lw": 75.2}, {"name": "Car driving slowly < 30 km/h", "lw": 47.0}, {"name": "Electric forklift - driving", "lw": 53.0}, {"name": "Gas forklift - driving", "lw": 62.0}, {"name": "Diesel forklift - driving", "lw": 62.2}];
+// TODO: Populate SOURCE_LIBRARY with {name, lw} from your Source library sheet (Name = col B, Overall dB(A) = col T).
+// Example: { name: \"Small truck idling\", lw: 90 }
+const byKey = new Map(DATA.map(r => [r.key, r]));
+const keys = DATA.map(r => r.key).sort((a,b)=>a.localeCompare(b));
+
+function fillSelect(id) {
+  const sel = document.getElementById(id);
+  sel.innerHTML = "";
+  const blank = document.createElement('option');
+  blank.value = "";
+  blank.textContent = "— Select —";
+  sel.appendChild(blank);
+  for (const k of keys) {
+    const o = document.createElement('option');
+    o.value = k;
+    o.textContent = k;
+    sel.appendChild(o);
+  }
+}
+
+function fmt(x) {
+  if (x === null || x === undefined || x === "") return "";
+  const n = Number(x);
+  return Number.isFinite(n) ? String(Math.round(n)) : "";
+}
+
+function landDisplay(rec) {
+  if (!rec) return "";
+  return rec.is_single == 1 ? rec.single_cat : rec.land_use_raw;
+}
+
+function receiverSingleLand(rec) {
+  // Match the land-use text shown in the top table exactly:
+  // single-category => single_cat, otherwise => land_use_raw (comma-separated list)
+  if (!rec) return "";
+  return rec.is_single == 1 ? rec.single_cat : rec.land_use_raw;
+}
+
+function isResOrRuralLivingSingle(rec) {
+  return rec && rec.is_single == 1 && (rec.single_cat === "Residential" || rec.single_cat === "Rural Living");
+}
+
+
+// --- Noise source calculators (Day / Night) ---
+function log10(x){ return Math.log(x) / Math.LN10; }
+
+function rowTotalLw(baseLw, n){
+  if (!Number.isFinite(baseLw)) return 0;
+  if (!Number.isFinite(n) || n <= 0) return 0;
+  return baseLw + 10 * log10(n);
+}
+
+function energeticSum(dBArray){
+  let sum = 0;
+  for (const v of dBArray){
+    const n = Number(v);
+    if (Number.isFinite(n) && n > 0) sum += Math.pow(10, n/10);
+  }
+  return sum > 0 ? 10 * log10(sum) : 0;
+}
+
+function makeSourceSelect(value=""){
+  const sel = document.createElement("select");
+  const blank = document.createElement("option");
+  blank.value = "";
+  blank.textContent = "— Select —";
+  sel.appendChild(blank);
+  for (const s of SOURCE_LIBRARY){
+    const o = document.createElement("option");
+    o.value = s.name;
+    o.textContent = s.name;
+    sel.appendChild(o);
+  }
+  sel.value = value;
+  return sel;
+}
+
+function makeYesNoSelect(value="No"){
+  const sel = document.createElement("select");
+  ["No","Yes"].forEach(v=>{
+    const o = document.createElement("option");
+    o.value = v;
+    o.textContent = v;
+    sel.appendChild(o);
+  });
+  sel.value = value || "No";
+  return sel;
+}
+
+function loadLS(key){ const v = localStorage.getItem(key); return v === null ? "" : v; }
+function saveLS(key, val){ localStorage.setItem(key, String(val)); }
+
+function renderSourceTable(prefix, tbodyId, totalId, rows=5){
+  const tbody = document.getElementById(tbodyId);
+  if (!tbody) return;
+  tbody.innerHTML = "";
+
+  function recalcAll(){
+    const rowTotals = [];
+    for (let i=1; i<=rows; i++){
+      const lwCell = document.getElementById(`${prefix}_lw_${i}`);
+      if (lwCell){
+        const v = Number(lwCell.textContent);
+        if (Number.isFinite(v) && v > 0) rowTotals.push(v);
+      }
+    }
+    const total = energeticSum(rowTotals);
+    const totalCell = document.getElementById(totalId);
+    if (totalCell) totalCell.textContent = String(Math.round(total));
+  }
+
+  for (let i=1; i<=rows; i++){
+    const tr = document.createElement("tr");
+
+    const kSrc = `${prefix}_src_${i}`;
+    const kN = `${prefix}_n_${i}`;
+    const kBar = `${prefix}_bar_${i}`;
+
+    const srcVal = loadLS(kSrc);
+    const nVal = loadLS(kN);
+    const barVal = loadLS(kBar) || "No";
+
+    const tdSrc = document.createElement("td");
+    const tdN = document.createElement("td"); tdN.className="center";
+    const tdBar = document.createElement("td"); tdBar.className="center";
+    const tdLw = document.createElement("td"); tdLw.className="num"; tdLw.id = `${prefix}_lw_${i}`;
+
+    const sel = makeSourceSelect(srcVal);
+    const inp = document.createElement("input");
+    inp.type="number"; inp.min="0"; inp.step="1"; inp.inputMode="numeric";
+    inp.value = nVal;
+
+    const bar = makeYesNoSelect(barVal);
+
+    function recalcRow(){
+      const picked = SOURCE_LIBRARY.find(s => s.name === sel.value);
+      const base = picked ? Number(picked.lw) : NaN;
+      const n = Number(inp.value);
+      const lw = rowTotalLw(base, n);
+
+      tdLw.textContent = String(Math.round(lw));
+
+      saveLS(kSrc, sel.value);
+      saveLS(kN, inp.value);
+      saveLS(kBar, bar.value);
+
+      recalcAll();
+    }
+
+    sel.addEventListener("change", recalcRow);
+    inp.addEventListener("input", recalcRow);
+    bar.addEventListener("change", recalcRow);
+
+    tdSrc.appendChild(sel);
+    tdN.appendChild(inp);
+    tdBar.appendChild(bar);
+
+    tr.appendChild(tdSrc);
+    tr.appendChild(tdN);
+    tr.appendChild(tdBar);
+    tr.appendChild(tdLw);
+
+    tbody.appendChild(tr);
+    recalcRow();
+  }
+
+  recalcAll();
+}
+
+function calcCriteria(source, rec) {
+  if (!source || !rec) return {day:"", night:"", lmax:""};
+
+  const sameCatGI_SI =
+    source.is_single == 1 &&
+    rec.is_single == 1 &&
+    source.single_cat &&
+    source.single_cat === rec.single_cat &&
+    (source.single_cat === "General Industry" || source.single_cat === "Special Industry");
+
+  let dayCrit, nightCrit;
+  if (sameCatGI_SI) {
+    const base = (source.single_cat === "General Industry") ? 65 : 70;
+    dayCrit = base - 5;
+    nightCrit = base - 5;
+  } else {
+    dayCrit = Math.round((Number(source.inf_day) + Number(rec.inf_day))/2) - 5;
+    nightCrit = Math.round((Number(source.inf_night) + Number(rec.inf_night))/2) - 5;
+  }
+
+  let lmax = "";
+  if (isResOrRuralLivingSingle(rec)) {
+    dayCrit = Math.min(dayCrit, 52);
+    nightCrit = Math.min(nightCrit, 45);
+    lmax = 60;
+  }
+
+  return {day: dayCrit, night: nightCrit, lmax};
+}
+
+function loadPred(id) {
+  const v = localStorage.getItem("pred_"+id);
+  return v === null ? "" : v;
+}
+function savePred(id, val) {
+  localStorage.setItem("pred_"+id, val);
+}
+
+function clearPredRow(rowNum) {
+  // rowNum is 1..4
+  ["day","night","lmax"].forEach(suffix => {
+    localStorage.removeItem("pred_r"+rowNum+"_"+suffix);
+  });
+}
+
+function compCell(pred, crit) {
+  // returns {delta, ok} or blanks if missing
+  if (pred === "" || pred === null || pred === undefined || crit === "" || crit === null || crit === undefined) {
+    return { delta:"", ok:"" };
+  }
+  const p = Number(pred);
+  const c = Number(crit);
+  if (!Number.isFinite(p) || !Number.isFinite(c)) return { delta:"", ok:"" };
+  const d = Math.round((p - c) * 10) / 10; // 0.1 dB
+  return { delta: d, ok: d <= 0 };
+}
+
+function td(text, cls="") {
+  return `<td class="${cls}">${text ?? ""}</td>`;
+}
+
+function render() {
+  const srcKey = document.getElementById('src').value;
+  const src = byKey.get(srcKey);
+
+  document.getElementById('src_land').textContent = landDisplay(src);
+  document.getElementById('src_day').textContent = fmt(src && src.inf_day);
+  document.getElementById('src_night').textContent = fmt(src && src.inf_night);
+
+  const ids = ["r1","r2","r3","r4"];
+  const rKeys = ids.map(id => document.getElementById(id).value);
+  const recs = rKeys.map(k => byKey.get(k));
+
+  ids.forEach((id, idx) => {
+    document.getElementById(id+"_land").textContent = landDisplay(recs[idx]);
+  });
+
+  const tbody = document.getElementById('rows');
+  tbody.innerHTML = "";
+
+  recs.forEach((rec, i) => {
+    const tr = document.createElement('tr');
+    const keyText = rKeys[i] || "";
+    const crit = calcCriteria(src, rec);
+
+    const dayCrit = crit.day;
+    const nightCrit = crit.night;
+    const lmaxCrit = crit.lmax;
+
+    const rowId = `r${i+1}`;
+    const predDayId = `${rowId}_day`;
+    const predNightId = `${rowId}_night`;
+    const predLmaxId = `${rowId}_lmax`;
+
+    const predDay = loadPred(predDayId);
+    const predNight = loadPred(predNightId);
+    const predLmax = loadPred(predLmaxId);
+
+    const day = compCell(predDay, dayCrit);
+    const night = compCell(predNight, nightCrit);
+    const lmax = compCell(predLmax, lmaxCrit);
+
+    function okText(v) { return v === "" ? "" : (v ? "<span class='ok'>Yes</span>" : "<span class='bad'>No</span>"); }
+    function cellClass(v) { return v === "" ? "" : (v ? "cell-ok" : "cell-bad"); }
+
+    tr.innerHTML =
+      td(keyText) +
+      td(receiverSingleLand(rec), "center") +
+
+      `<td class="num"><input type="number" step="0.1" inputmode="decimal" data-k="${predDayId}" value="${predDay}"></td>` +
+      td(fmt(dayCrit), "num") +
+      td(day.delta === "" ? "" : String(day.delta), "num") +
+      td(okText(day.ok), "center "+cellClass(day.ok)) +
+
+      `<td class="num"><input type="number" step="0.1" inputmode="decimal" data-k="${predNightId}" value="${predNight}"></td>` +
+      td(fmt(nightCrit), "num") +
+      td(night.delta === "" ? "" : String(night.delta), "num") +
+      td(okText(night.ok), "center "+cellClass(night.ok)) +
+
+      `<td class="num"><input type="number" step="0.1" inputmode="decimal" data-k="${predLmaxId}" value="${predLmax}"></td>` +
+      td(lmaxCrit === "" ? "" : fmt(lmaxCrit), "num") +
+      td(lmax.delta === "" ? "" : String(lmax.delta), "num") +
+      td(okText(lmax.ok), "center "+cellClass(lmax.ok));
+
+    tbody.appendChild(tr);
+  });
+
+  // attach listeners for new inputs
+  tbody.querySelectorAll('input[type="number"][data-k]').forEach(inp => {
+    inp.addEventListener('input', (e) => {
+      savePred(e.target.getAttribute('data-k'), e.target.value);
+      // rerender to refresh deltas/OK without losing cursor too aggressively:
+      // lightweight: update only on blur? We'll do on input but keep it simple: rerender fully.
+      // To avoid jumpiness, do it on blur + enter
+    }, {passive:true});
+    inp.addEventListener('change', () => render());
+    inp.addEventListener('blur', () => render());
+  });
+}
+
+["src","r1","r2","r3","r4"].forEach(fillSelect);
+["src","r1","r2","r3","r4"].forEach(id => document.getElementById(id).addEventListener('change', () => {
+  // If a receiver selection changes, clear predicted values for that receiver row
+  if (id === "r1") clearPredRow(1);
+  if (id === "r2") clearPredRow(2);
+  if (id === "r3") clearPredRow(3);
+  if (id === "r4") clearPredRow(4);
+  render();
+}));
+
+render();
+renderSourceTable('day','daySrcRows','daySrcTotal',5);
+renderSourceTable('night','nightSrcRows','nightSrcTotal',5);
+</script>
+</body>
+</html>
