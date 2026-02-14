@@ -46,7 +46,7 @@ input[type="number"]{width:100%;border:1px solid var(--border);border-radius:10p
 @media (min-width: 980px){.grid2{grid-template-columns:1fr 1fr;}}
 .card{border:1px solid var(--border);border-radius:14px;background:#fff;padding:12px;}
 .card h2{font-size:14px;margin:0 0 10px;}
-.pdf-btn {background: rgba(255, 255, 255);border: none;padding: 10px 16px;border-radius: 10px;font-size: 13px;font-weight: 600;cursor: pointer;margin-bottom: 16px;}
+.pdf-btn {background: rgba(255, 255, 255);border: 1px solid var(--border);padding: 10px 16px;border-radius: 10px;font-size: 13px;font-weight: 600;cursor: pointer;margin-bottom: 16px;}
 .pdf-btn:hover {opacity: 0.9;}
 </style>
 </head>
@@ -263,7 +263,7 @@ input[type="number"]{width:100%;border:1px solid var(--border);border-radius:10p
   </div>
   </div>
   <div style="margin-top:20px;"></div>
-  <button class="pdf-btn" onclick="window.print()">Download as PDF</button>
+  <button class="pdf-btn" onclick="window.print()">Save As</button>
 </div>
 
 <script>
