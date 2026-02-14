@@ -726,6 +726,12 @@ renderSourceTable('lmax','nightLmaxRows','nightLmaxTotal',1);
         const imgData = canvas.toDataURL("image/jpeg", 0.95);
 
         const pageW = 210, pageH = 297; // A4 portrait mm
+
+        // Set margins (mm)
+        const marginTop = 20;     // ← adjust this
+        const marginSides = 10;
+        const marginBottom = 15;
+        
         let renderW = pageW;
         let renderH = (canvas.height * renderW) / canvas.width;
 
