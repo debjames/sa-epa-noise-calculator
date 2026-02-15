@@ -65,17 +65,6 @@ input[type="number"]{width:100%;border:1px solid var(--border);border-radius:10p
     Part 5 of the <i>Environment Protection (Commercial & Industrial) Noise Policy 2023</i> and to understand the order
     noise levels from various noise sources. 
   </div>
-  <div class="p">
-  <div class="h2">Sound pressure level calculator</div>
-  This calculator provides an indication of the sound pressure level at a specified distance due to various noise sources. 
-  It does not consider ground and air absorption or meteorological effects, which are more significant over large distances. 
-  It is intended to be used a simple screening tool to determine whether more accurate noise modelling and advice should be provided by an acoustic consultant.
-  </div>
-  <div class="p">
-  <div class="h2">Barrier attenuation</div>
-  The barrier provides overall 5 dB attenuation. This is a conservative indication of the attenuation provided by a solid acoustic barrier which blocks line of sight between the noise source and receiver. 
-  Actual acoustic barrier attenuation may vary in complex terrain or environments with hard reflective surfaces in proximity to the source and/or receiver.
-   </div>
     <div class="i">
     Discliamer: This tool is not designed to provide definitive predictions or confirm compliance. 
     It serves only as a preliminary screening tool to indicate the potential for compliance. 
@@ -178,6 +167,8 @@ input[type="number"]{width:100%;border:1px solid var(--border);border-radius:10p
     <div class="grid2" style="padding-top:0;">
       <div class="card">
         <h2>Day situation – L<sub>eq</sub> selected noise sources</h2>
+         <div class="p">Select the relevant noise source, the number of that source on site, the minutes operational within a 15 minute assessment
+           period, and the use of an acoustic barrier.</div>
         <table id="daySrcTable">
           <tr>
             <th style="width:42%;">Source</th>
@@ -193,12 +184,16 @@ input[type="number"]{width:100%;border:1px solid var(--border);border-radius:10p
           </tr>
         </table>
         <div class="small" style="margin-top:8px;">
-          Barrier toggle applies a simple −5 dB adjustment to the item’s Total Lw when set to Yes.
+    `Barrier toggle applies a simple 5 dB attenuation. This is a conservative indication of the attenuation provided by a solid acoustic barrier which blocks line of sight between the noise source and receiver. 
+  Actual acoustic barrier attenuation may vary in complex terrain or environments with hard reflective surfaces in proximity to the source and/or receiver.
+   </div>
         </div>
       </div>
 
       <div class="card">
         <h2>Night situation – L<sub>eq</sub> selected noise sources</h2>
+          <div class="p">Select the relevant noise source, the number of that source on site, the minutes operational within a 15 minute assessment
+           period, and the use of an acoustic barrier.</div>
         <table id="nightSrcTable">
           <tr>
             <th style="width:42%;">Source</th>
@@ -214,7 +209,8 @@ input[type="number"]{width:100%;border:1px solid var(--border);border-radius:10p
           </tr>
         </table>
         <div class="small" style="margin-top:8px;">
-          Barrier toggle applies a simple −5 dB adjustment to the item’s Total Lw when set to Yes.
+           Barrier toggle applies a simple 5 dB attenuation. This is a conservative indication of the attenuation provided by a solid acoustic barrier which blocks line of sight between the noise source and receiver. 
+  Actual acoustic barrier attenuation may vary in complex terrain or environments with hard reflective surfaces in proximity to the source and/or receiver.
           </div>
         <div style="margin-top:20px;"></div>
         <h2>Night situtaion – L<sub>max</sub> selected noise source</h2>
@@ -232,7 +228,8 @@ input[type="number"]{width:100%;border:1px solid var(--border);border-radius:10p
           </tr>
         </table>
         <div class="small" style="margin-top:8px;">
-          Barrier toggle applies a simple −5 dB adjustment to the item’s Total Lw when set to Yes.
+          Barrier toggle applies a simple 5 dB attenuation. This is a conservative indication of the attenuation provided by a solid acoustic barrier which blocks line of sight between the noise source and receiver. 
+  Actual acoustic barrier attenuation may vary in complex terrain or environments with hard reflective surfaces in proximity to the source and/or receiver.
         </div>
         
       
@@ -241,6 +238,12 @@ input[type="number"]{width:100%;border:1px solid var(--border);border-radius:10p
    
     <div class="grid2">
       <div class="card span2">
+      <div class="p">
+      <div class="h2">Sound pressure level calculator</div>
+      This calculator provides an indication of the sound pressure level at a specified distance due to various noise sources. 
+      It does not consider ground and air absorption or meteorological effects, which are more significant over large distances. 
+      It is intended to be used a simple screening tool to determine whether more accurate noise modelling and advice should be provided by an acoustic consultant.
+      </div>
       <div class="table-scroll">
     <table>
       <tr>
