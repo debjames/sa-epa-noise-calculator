@@ -670,14 +670,14 @@ function renderSourceTable(prefix, tbodyId, totalId, rows=5){
     const sel = makeSourceSelect(srcVal, libGrouped);
     const inp = document.createElement("input");
     inp.type="number"; inp.min="0"; inp.step="1"; inp.inputMode="numeric";
-    inp.value = nVal;
+    inp.value = (nVal === "" || nVal === null || nVal === undefined) ? "1" : nVal;
 
     inp.id = `${prefix}_n_inp_${i}`;
 
     const inpMin = document.createElement("input");
     inpMin.type="number"; inpMin.min="0"; inpMin.max="15"; inpMin.step="1"; inpMin.inputMode="numeric";
     // If nothing stored yet, default to 15 minutes so results match previous behaviour.
-    inpMin.value = (minVal === "" ? "15" : minVal);
+    inpMin.value = (minVal === "" || minVal === null || minVal === undefined) ? "15" : minVal;
     inpMin.id = `${prefix}_min_inp_${i}`;
 
     const bar = makeYesNoSelect(barVal);
