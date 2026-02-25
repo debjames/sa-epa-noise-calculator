@@ -50,7 +50,8 @@ input[type="number"]{width:100%;border:1px solid var(--border);border-radius:10p
 .pdf-btn {background:#fff;border: 1px solid var(--border);border-radius:10px;padding: 10px 16px;border-radius: 10px;font-size: 13px;font-weight: 600;cursor: pointer;margin-bottom: 16px;}
 .pdf-btn:hover {opacity: 0.9;}
 .link-btn {display: inline-block;background:#fff;border: 1px solid var(--border);border-radius:10px;padding: 10px 16px;font-size: 13px;font-weight: 600;cursor: pointer;margin-bottom: 16px;}
-
+.char-btn {margin-right: 6px;  padding: 6px 10px;  border-radius: 6px;  border: 1px solid #ccc;  background: #fff;  cursor: pointer;}
+.char-btn.active {  background: #F2CB00;  font-weight: bold;}
 /* --- Tooltip styling --- */
 .tooltip {
   position: relative;
@@ -113,18 +114,7 @@ input[type="number"]{width:100%;border:1px solid var(--border);border-radius:10p
   visibility: visible;
   opacity: 1;
 }
-.char-btn {
-  margin-right: 6px;
-  padding: 6px 10px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  background: #fff;
-  cursor: pointer;
-}
-.char-btn.active {
-  background: #F2CB00;
-  font-weight: bold;
-}
+
 </style>
 
 </head>
@@ -373,6 +363,23 @@ input[type="number"]{width:100%;border:1px solid var(--border);border-radius:10p
   </div>
   </div>
   </div>
+  <div style="margin:20px 0;">
+  <strong class="tooltip">Characteristic penalty
+    <span class="tooltiptext">
+      Characteristic penalties include noise modulation, tonality, impulsiveness, 
+      low frequency, and intermittency. The character must control the impact 
+      of noise at the receiver. Refer to 
+      https://www.epa.sa.gov.au/files/15663_guide_noise_policy_2023.pdf 
+      for further details.
+    </span>
+  </strong>
+  <div style="margin-top:8px;">
+    <button class="char-btn" onclick="setPenalty(0,this)">None</button>
+    <button class="char-btn" onclick="setPenalty(5,this)">1 character (+5)</button>
+    <button class="char-btn" onclick="setPenalty(8,this)">2 characters (+8)</button>
+    <button class="char-btn" onclick="setPenalty(10,this)">3+ characters (+10)</button>
+  </div>
+</div>
   <div style="margin-top:20px;"></div>
   <button class="pdf-btn" id="pdfBtn" type="button">Export PDF</button>
 </div>
@@ -1071,25 +1078,6 @@ renderSourceTable('lmax','nightLmaxRows','nightLmaxTotal',1);
   });
 </script>
 
-
-
-<div style="margin:20px 0;">
-  <strong class="tooltip">Characteristic penalty
-    <span class="tooltiptext">
-      Characteristic penalties include noise modulation, tonality, impulsiveness, 
-      low frequency, and intermittency. The character must control the impact 
-      of noise at the receiver. Refer to 
-      https://www.epa.sa.gov.au/files/15663_guide_noise_policy_2023.pdf 
-      for further details.
-    </span>
-  </strong>
-  <div style="margin-top:8px;">
-    <button class="char-btn" onclick="setPenalty(0,this)">None</button>
-    <button class="char-btn" onclick="setPenalty(5,this)">1 character (+5)</button>
-    <button class="char-btn" onclick="setPenalty(8,this)">2 characters (+8)</button>
-    <button class="char-btn" onclick="setPenalty(10,this)">3+ characters (+10)</button>
-  </div>
-</div>
 
 <script>
 let characteristicPenalty = 0;
